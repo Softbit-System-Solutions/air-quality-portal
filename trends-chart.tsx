@@ -1,0 +1,93 @@
+"use client"
+
+import { Line, LineChart, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+
+interface TrendsChartProps {
+  data: { date: string; aqi: number; pm25: number; pm10: number }[]
+  pollutant: "aqi" | "pm25" | "pm10"
+  stationName: string
+  pollutantLabel: string
+  pollutantUnit: string
+}
+
+export default function TrendsChart({ data, pollutant, stationName, pollutantLabel, pollutantUnit }: TrendsChartProps) {
+  // Transform data for the chart
+  const chartData = data.map((item) => ({
+    date: new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    value: item[pollutant],
+    fullDate: item.date,
+  }))
+
+  // Get color based on pollutant type
+  const getChartColor = () => {
+    switch (pollutant) {
+      case "aqi":
+        return "#3b82f6" // Blue
+      case "pm25":
+        return "#ef4444" // Red
+      case "pm10":
+        return "#f59e0b" // Orange
+      default:
+        return "#3b82f6"
+    }
+  }
+
+  return (
+    <div className="w-full h-full">
+      <div className="mb-4">
+        <h4 className="text-[#101828] font-medium">
+          {pollutantLabel} Trends - {stationName}
+        </h4>
+        <p className="text-[#667085] text-sm">Last 30 days {pollutantUnit && `(${pollutantUnit})`}</p>
+      </div>
+
+      <div className="w-full h-[300px] sm:h-[350px] lg:h-[400px]">
+  <ChartContainer
+    config={{
+      value: {
+        label: pollutantLabel,
+        color: getChartColor(),
+      },
+    }}
+    className="w-full h-full"
+  >
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#eaecf0" />
+        <XAxis dataKey="date" stroke="#667085" fontSize={12} tickLine={false} axisLine={false} />
+        <YAxis stroke="#667085" fontSize={12} tickLine={false} axisLine={false} />
+        <ChartTooltip
+          content={<ChartTooltipContent />}
+          labelFormatter={(label, payload) => {
+            if (payload && payload[0]) {
+              const fullDate = payload[0].payload?.fullDate
+              if (fullDate) {
+                return new Date(fullDate).toLocaleDateString("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
+              }
+            }
+            return label
+          }}
+          formatter={(value) => [`${value}${pollutantUnit ? ` ${pollutantUnit}` : ""}`, pollutantLabel]}
+        />
+        <Line
+          type="monotone"
+          dataKey="value"
+          stroke={getChartColor()}
+          strokeWidth={2}
+          dot={{ fill: getChartColor(), strokeWidth: 2, r: 4 }}
+          activeDot={{ r: 6, stroke: getChartColor(), strokeWidth: 2 }}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  </ChartContainer>
+</div>
+
+    </div>
+  )
+}
