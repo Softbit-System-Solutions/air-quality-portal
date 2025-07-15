@@ -11,7 +11,7 @@ Follow the steps below to run the project locally.
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-org/nairobi-air-quality-portal.git
+git clone git@github.com:Softbit-System-Solutions/air-quality-portal.git
 cd nairobi-air-quality-portal```
 ```
 ### 2. Install Dependancies
