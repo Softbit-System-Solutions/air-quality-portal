@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import TrendsChart from "./trends-chart";
 import Navbar from "./navbar";
 import EmailAlertSection from "./email-alert-section";
+import FeedbackSection from "./feedbacksection"
 
 // Dynamically import MapComponent with SSR disabled
 const MapComponent = dynamic(() => import("./map-component"), {
@@ -610,6 +611,7 @@ export default function Dashboard() {
           </section>
         </div>
       </div>
+      <FeedbackSection />
     </div>
   );
 }
