@@ -613,7 +613,10 @@ export default function Dashboard() {
             </div>
           </section>
           {/* Feedback Section */}
-          <FeedbackSection />
+          <section>
+            <FeedbackSection />
+          </section>
+          
         </div>
       </div>
     </div>
