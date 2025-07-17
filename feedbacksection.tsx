@@ -1,5 +1,4 @@
-// Feedback section component for collecting user input
-
+"use client"
 
 import React, { useState } from 'react';
 import { Star, Send } from 'lucide-react';
