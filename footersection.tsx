@@ -1,3 +1,6 @@
+// display site info and navigation links
+
+
 import React from 'react';
 import { 
   MapPin, 
