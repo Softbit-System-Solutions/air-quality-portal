@@ -82,29 +82,29 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({ onSubmitFeedback }) =
     };
 
     return (
-        <div className="max-w-6xl mx-auto p-6 bg-gray-50 min-h-screen">
+        <div className="max-w-6xl mx-auto py-36">
 
             {/* Feedback Section */}
-            <div >
-                <div className="text-center mb-6">
-                    <h2 className="text-2xl font-semibold text-gray-800 mb-2">We'd love to hear from you</h2>
-                    <p className="text-gray-600">Your feedback helps us improve our air quality monitoring service</p>
+            <div className='' >
+                <div className="text-center ">
+                    <h2 className="text-4xl font-semibold text-gray-800 mb-2">We'd love to hear from you</h2>
+                    <p className="text-gray-500 mb-16">Your feedback helps us improve our air quality monitoring service</p>
                 </div>
 
                 {isSubmitted ? (
-                    <div className="max-w-md mx-auto text-center">
+                    <div className="max-w-md mx-auto text-center mb-6">
                         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
                             <h3 className="font-semibold">Thank you for your feedback!</h3>
                             <p className="text-sm mt-1">We appreciate your input and will use it to improve our service.</p>
                         </div>
                     </div>
                 ) : (
-                    <div className="max-w-md mx-auto bg-white rounded-lg p-6 shadow-md">
+                    <div className="max-w-xl mx-auto bg-white rounded-lg p-6 shadow-md space-y-10">
                         <div className="mb-6">
-                            <label className="block text-gray-700 text-sm font-medium mb-2">
+                            <label className="block text-gray-700 font-medium mb-2">
                                 How would you rate our air quality service?
                             </label>
-                            <div className="flex justify-center space-x-1">
+                            <div className="flex justify-left space-x-1">
                                 {[1, 2, 3, 4, 5].map((star: number) => (
                                     <button
                                         key={star}
@@ -135,7 +135,7 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({ onSubmitFeedback }) =
                         </div>
 
                         <div className="mb-4">
-                            <label htmlFor="feedback" className="block text-gray-700 text-sm font-medium mb-2">
+                            <label htmlFor="feedback" className="block text-gray-700 font-medium mb-2">
                                 Tell us about your experience
                             </label>
                             <textarea
@@ -154,8 +154,8 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({ onSubmitFeedback }) =
                             </p>
                         </div>
 
-                        <div className="mb-6">
-                            <label htmlFor="email" className="block text-gray-700 text-sm font-medium mb-2">
+                        <div className="mb-8">
+                            <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
                                 Email (optional)
                             </label>
                             <input
@@ -172,7 +172,7 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({ onSubmitFeedback }) =
                         <button
                             onClick={handleSubmit}
                             disabled={rating === 0 || !feedback.trim() || isLoading}
-                            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center space-x-2"
+                            className="w-full space-y-1 bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center space-x-2 mt-4"
                         >
                             {isLoading ? (
                                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
