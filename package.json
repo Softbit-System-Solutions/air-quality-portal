@@ -6,7 +6,8 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "test": "jest"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -62,7 +63,14 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.28.0",
+    "@babel/preset-react": "^7.27.1",
+    "@babel/preset-typescript": "^7.27.1",
     "@eslint/js": "^9.31.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
     "@types/leaflet": "^1.9.20",
     "@types/node": "^22",
     "@types/react": "^19",
@@ -70,9 +78,13 @@
     "eslint": "^9.31.0",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.3.0",
+    "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
     "postcss": "^8.5",
     "react-dom": "^18.2.0",
     "tailwindcss": "^3.4.17",
+    "ts-jest": "^29.4.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5",
     "typescript-eslint": "^8.38.0"
   },
