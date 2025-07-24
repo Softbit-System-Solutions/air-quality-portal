@@ -55,7 +55,7 @@ const Footer: React.FC<FooterProps> = ({ className = '' }) => {
   ];
 
   return (
-    <footer className={`bg-gray-900 text-white ${className}`}>
+    <footer className={`bg-gray-800 text-white ${className}`}>
      
 
       {/* Main Footer Content */}
@@ -65,9 +65,9 @@ const Footer: React.FC<FooterProps> = ({ className = '' }) => {
           {/* Organization Info */}
           <div className="col-span-1 lg:col-span-1">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-12 h-12 flex items-center justify-center">
+              {/* <div className="w-12 h-12 flex items-center justify-center">
                 <img src="/nccg_logo.png" alt="Nairobi County Government" className="h-20 w-20" />
-              </div>
+              </div> */}
               <div>
                 <h3 className="text-lg font-bold">Air Quality Portal</h3>
                 <p className="text-sm text-gray-400">Kenya</p>
@@ -197,7 +197,7 @@ const Footer: React.FC<FooterProps> = ({ className = '' }) => {
       </div>
 
       {/* Bottom Bar */}
-      <div className="bg-gray-800 py-4">
+      <div className="bg-gray-700 py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
             <div className="text-sm text-gray-400">

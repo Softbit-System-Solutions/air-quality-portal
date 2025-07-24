@@ -350,8 +350,22 @@ export default function Dashboard() {
             </div>
           </div> */}
 
+          {/* Header */}
+
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-gray-800">
+              Nairobi Air Quality Portal
+            </h1>
+            <div className="flex items-center text-sm text-gray-600 mt-1">
+              <span>Last updated: {new Date().toLocaleString()}</span>
+              <span className="ml-4 px-2 py-0.5 text-green-700 bg-green-100 rounded-full text-xs">
+                Live Data
+              </span>
+            </div>
+          </div>
+
           {/* Map Container */}
-          <div className="relative rounded-lg overflow-hidden bg-gray-100">
+          <div className="relative rounded-lg overflow-hidden bg-gray-100 mb-32">
             <div className="h-[400px] sm:h-[500px] lg:h-[600px]">
               <MapComponent
                 stations={stations}
@@ -545,10 +559,10 @@ export default function Dashboard() {
           </div>
 
           {/* Trends Section */}
-          <section id="trends" className="py-4 mb-32">
+          <section id="trends" className="py-20 mb-32">
             <div className="flex relative flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
               <div>
-                <h3 className="text-[#101828] font-semibold text-xl mb-1">
+                <h3 className="text-[#101828] font-semibold text-2xl mb-1">
                   Air Quality Trends in Nairobi
                 </h3>
               </div>
@@ -617,11 +631,12 @@ export default function Dashboard() {
             <FeedbackSection />
           </section>
           {/* Footer  Section */}
-          <section>
-            <Footer />
-          </section>
+
         </div>
       </div>
+      <section>
+        <Footer />
+      </section>
     </div>
   );
 }
