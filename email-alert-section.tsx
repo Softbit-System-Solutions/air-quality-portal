@@ -1,15 +1,12 @@
 // components/EmailAlertSection.tsx
-import { ArrowRight } from "lucide-react";
-import { useState } from "react";
 
 export default function EmailAlertSection() {
-  const [email, setEmail] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: handle email submission (e.g., POST to backend)
-    console.log("Email submitted:", email);
-  };
+  // const handleSubmit = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   // TODO: handle email submission (e.g., POST to backend)
+  //   console.log("Email submitted:");
+  // };
 
   return (
    

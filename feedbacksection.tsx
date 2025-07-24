@@ -89,6 +89,7 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({ onSubmitFeedback }) =
                 <div className="text-center ">
                     <h2 className="text-4xl font-semibold text-gray-800 mb-2">We'd love to hear from you</h2>
                     <p className="text-gray-500 mb-16">Your feedback helps us improve our air quality monitoring service</p>
+
                 </div>
 
                 {isSubmitted ? (

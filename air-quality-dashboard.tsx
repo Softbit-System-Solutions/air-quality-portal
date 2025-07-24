@@ -282,9 +282,9 @@ function getPollutantLevel(value: number, pollutant: PollutantType): string {
 
 export default function Dashboard() {
   const [selectedStation, setSelectedStation] = useState<Station | null>(null);
-  const [selectedPollutant, setSelectedPollutant] =
-    useState<PollutantType>("aqi");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  // const [selectedPollutant, setSelectedPollutant] = useState<PollutantType>("aqi");
+  const selectedPollutant = "aqi"
+  // const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [trendsStation, setTrendsStation] = useState<Station>(stations[0]); // Default to first station
   const [isTrendsDropdownOpen, setIsTrendsDropdownOpen] = useState(false);
 
@@ -631,6 +631,7 @@ export default function Dashboard() {
             <FeedbackSection />
           </section>
           {/* Footer  Section */}
+
         </div>
       </div>
       <section>

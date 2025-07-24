@@ -1,0 +1,22 @@
+# Don't lint dependencies
+node_modules/
+
+# Don't lint build output
+.next/
+out/
+
+# Don't lint configuration files
+*.config.js
+*.config.cjs
+*.config.mjs
+
+# Don't lint public assets
+public/
+
+# Optional: ignore tests or mocks if you don’t want them linted
+# __tests__/
+# __mocks__/
+
+# Ignore generated files
+dist/
+coverage/
