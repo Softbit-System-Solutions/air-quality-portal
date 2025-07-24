@@ -12,9 +12,7 @@ import {
   Instagram, 
   Youtube,
   ExternalLink,
-  Shield,
-  Globe,
-  AlertTriangle
+
 } from 'lucide-react';
 
 interface FooterProps {

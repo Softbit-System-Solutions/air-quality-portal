@@ -5,8 +5,8 @@ import dynamic from "next/dynamic";
 import TrendsChart from "./trends-chart";
 import Navbar from "./navbar";
 import EmailAlertSection from "./email-alert-section";
-import FeedbackSection from "./feedbacksection"
-import Footer from "./footersection"
+import FeedbackSection from "./feedbacksection";
+import Footer from "./footersection";
 // Dynamically import MapComponent with SSR disabled
 const MapComponent = dynamic(() => import("./map-component"), {
   ssr: false,
@@ -282,9 +282,9 @@ function getPollutantLevel(value: number, pollutant: PollutantType): string {
 
 export default function Dashboard() {
   const [selectedStation, setSelectedStation] = useState<Station | null>(null);
-  const [selectedPollutant, setSelectedPollutant] =
-    useState<PollutantType>("aqi");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  // const [selectedPollutant, setSelectedPollutant] = useState<PollutantType>("aqi");
+  const selectedPollutant = "aqi"
+  // const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [trendsStation, setTrendsStation] = useState<Station>(stations[0]); // Default to first station
   const [isTrendsDropdownOpen, setIsTrendsDropdownOpen] = useState(false);
 
@@ -544,8 +544,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-
-
           {/* Trends Section */}
           <section id="trends" className="py-4 mb-32">
             <div className="flex relative flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
@@ -553,7 +551,6 @@ export default function Dashboard() {
                 <h3 className="text-[#101828] font-semibold text-xl mb-1">
                   Air Quality Trends in Nairobi
                 </h3>
-                
               </div>
               <div>
                 <button
@@ -602,9 +599,11 @@ export default function Dashboard() {
             />
           </section>
 
-          
           {/* Email Section */}
-          <section id="alerts" className="bg-[#2E7D32] mt-3 text-white h-[50vh] py-16 p-4 w-[100vw] -ml-[8px] sm:-ml-[calc((100vw-100%)/2)]">
+          <section
+            id="alerts"
+            className="bg-[#2E7D32] mt-3 text-white h-[50vh] py-16 p-4 w-[100vw] -ml-[8px] sm:-ml-[calc((100vw-100%)/2)]"
+          >
             {" "}
             <div className="max-w-4xl mx-auto h-full flex flex-col justify-center items-center space-y-6">
               <h2 className="text-3xl sm:text-4xl font-semibold text-center mb-6">
@@ -617,9 +616,9 @@ export default function Dashboard() {
           <section>
             <FeedbackSection />
           </section>
-           {/* Footer  Section */}
+          {/* Footer  Section */}
           <section>
-            <Footer/>
+            <Footer />
           </section>
         </div>
       </div>
