@@ -135,6 +135,7 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({
           </p>
         </div>
 
+
         {isSubmitted ? (
           <div className="max-w-md mx-auto text-center">
             <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
