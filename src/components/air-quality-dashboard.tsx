@@ -7,10 +7,11 @@ import Navbar from "@/components/navbar";
 import EmailAlertSection from "@/components/email-alert-section";
 import FeedbackSection from "@/components/feedbacksection";
 import Footer from "@/components/footersection";
-import { getHistoricalData, getStations } from "@/lib/api";
+import { FakeHistoricalData, FakeStation, getHistoricalData, getStations } from "@/lib/api";
 import Legend from "./legend";
 import { HistoricalData } from '@/lib/api'
 import { Station } from '@/lib/api'
+import TrendsCharttt from "./trendsCharttt";
 
 // Dynamically import MapComponent with SSR disabled
 const MapComponent = dynamic(() => import("./map-component"), {
@@ -32,186 +33,186 @@ const pollutantOptions: PollutantOption[] = [
 ];
 
 // Generate sample historical data for the last 30 days
-// function generateHistoricalData(
-//   baseAqi: number,
-//   basePm25: number,
-//   basePm10: number
-// ): HistoricalData[] {
-//   const data: HistoricalData[] = [];
-//   const today = new Date();
+function generateHistoricalData(
+  baseAqi: number,
+  basePm25: number,
+  basePm10: number
+): FakeHistoricalData[] {
+const data: FakeHistoricalData[] = [];
+  const today = new Date();
 
-//   for (let i = 29; i >= 0; i--) {
-//     const date = new Date(today);
-//     date.setDate(date.getDate() - i);
+  for (let i = 29; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
 
-//     // Add some realistic variation to the data
-//     const variation = (Math.random() - 0.5) * 0.3;
-//     const seasonalTrend = Math.sin((i / 30) * Math.PI * 2) * 0.1;
+    // Add some realistic variation to the data
+    const variation = (Math.random() - 0.5) * 0.3;
+    const seasonalTrend = Math.sin((i / 30) * Math.PI * 2) * 0.1;
 
-//     data.push({
-//       date: date.toISOString().split("T")[0],
-//       avg_aqi: Math.round(baseAqi * (1 + variation + seasonalTrend)),
-//       avg_pm25: Math.round(basePm25 * (1 + variation + seasonalTrend)),
-//       avg_pm10: Math.round(basePm10 * (1 + variation + seasonalTrend)),
-//     });
-//   }
+    data.push({
+      date: date.toISOString().split("T")[0],
+      aqi: Math.round(baseAqi * (1 + variation + seasonalTrend)),
+      pm25: Math.round(basePm25 * (1 + variation + seasonalTrend)),
+      pm10: Math.round(basePm10 * (1 + variation + seasonalTrend)),
+    });
+  }
 
-//   return data;
-// }
+  return data;
+}
 
 // Real coordinates for Nairobi air quality monitoring stations with all pollutant data
-// const stations: Station[] = [
-//   {
-//     id: "1",
-//     name: "Karura Forest",
-//     aqi: 55,
-//     pm25: 22,
-//     pm10: 35,
-//     lat: -1.2321,
-//     lng: 36.8947,
-//     historicalData: generateHistoricalData(55, 22, 35),
-//   },
-//   {
-//     id: "2",
-//     name: "CBD Station",
-//     aqi: 95,
-//     pm25: 45,
-//     pm10: 78,
-//     lat: -1.2864,
-//     lng: 36.8172,
-//     historicalData: generateHistoricalData(95, 45, 78),
-//   },
-//   {
-//     id: "3",
-//     name: "Village Market",
-//     aqi: 35,
-//     pm25: 15,
-//     pm10: 28,
-//     lat: -1.2505,
-//     lng: 36.8031,
-//     historicalData: generateHistoricalData(35, 15, 28),
-//   },
-//   {
-//     id: "4",
-//     name: "Westlands",
-//     aqi: 46,
-//     pm25: 19,
-//     pm10: 32,
-//     lat: -1.2676,
-//     lng: 36.8108,
-//     historicalData: generateHistoricalData(46, 19, 32),
-//   },
-//   {
-//     id: "5",
-//     name: "Gigiri",
-//     aqi: 25,
-//     pm25: 12,
-//     pm10: 20,
-//     lat: -1.2342,
-//     lng: 36.8156,
-//     historicalData: generateHistoricalData(25, 12, 20),
-//   },
-//   {
-//     id: "6",
-//     name: "Kasarani",
-//     aqi: 32,
-//     pm25: 14,
-//     pm10: 25,
-//     lat: -1.2198,
-//     lng: 36.8897,
-//     historicalData: generateHistoricalData(32, 14, 25),
-//   },
-//   {
-//     id: "7",
-//     name: "Embakasi",
-//     aqi: 78,
-//     pm25: 38,
-//     pm10: 65,
-//     lat: -1.3031,
-//     lng: 36.8978,
-//     historicalData: generateHistoricalData(78, 38, 65),
-//   },
-//   {
-//     id: "8",
-//     name: "Kibera",
-//     aqi: 67,
-//     pm25: 32,
-//     pm10: 55,
-//     lat: -1.3133,
-//     lng: 36.7919,
-//     historicalData: generateHistoricalData(67, 32, 55),
-//   },
-//   {
-//     id: "9",
-//     name: "Mathare",
-//     aqi: 72,
-//     pm25: 35,
-//     pm10: 58,
-//     lat: -1.2588,
-//     lng: 36.8581,
-//     historicalData: generateHistoricalData(72, 35, 58),
-//   },
-//   {
-//     id: "10",
-//     name: "Eastlands",
-//     aqi: 58,
-//     pm25: 28,
-//     pm10: 45,
-//     lat: -1.2743,
-//     lng: 36.8919,
-//     historicalData: generateHistoricalData(58, 28, 45),
-//   },
-//   {
-//     id: "11",
-//     name: "Ngong Road",
-//     aqi: 41,
-//     pm25: 18,
-//     pm10: 30,
-//     lat: -1.3019,
-//     lng: 36.8108,
-//     historicalData: generateHistoricalData(41, 18, 30),
-//   },
-//   {
-//     id: "12",
-//     name: "Thika Road",
-//     aqi: 39,
-//     pm25: 16,
-//     pm10: 29,
-//     lat: -1.2198,
-//     lng: 36.8581,
-//     historicalData: generateHistoricalData(39, 16, 29),
-//   },
-//   {
-//     id: "13",
-//     name: "Langata",
-//     aqi: 29,
-//     pm25: 13,
-//     pm10: 22,
-//     lat: -1.3667,
-//     lng: 36.7919,
-//     historicalData: generateHistoricalData(29, 13, 22),
-//   },
-//   {
-//     id: "14",
-//     name: "Parklands",
-//     aqi: 33,
-//     pm25: 15,
-//     pm10: 26,
-//     lat: -1.2505,
-//     lng: 36.8297,
-//     historicalData: generateHistoricalData(33, 15, 26),
-//   },
-//   {
-//     id: "15",
-//     name: "Industrial Area",
-//     aqi: 85,
-//     pm25: 42,
-//     pm10: 70,
-//     lat: -1.3019,
-//     lng: 36.8581,
-//     historicalData: generateHistoricalData(85, 42, 70),
-//   },
-// ];
+const fakeStations: any[] = [
+  {
+    id: "1",
+    name: "Karura Forest",
+    aqi: 55,
+    pm25: 22,
+    pm10: 35,
+    lat: -1.2321,
+    lng: 36.8947,
+    historicalData: generateHistoricalData(55, 22, 35),
+  },
+  {
+    id: "2",
+    name: "CBD Station",
+    aqi: 95,
+    pm25: 45,
+    pm10: 78,
+    lat: -1.2864,
+    lng: 36.8172,
+    historicalData: generateHistoricalData(95, 45, 78),
+  },
+  {
+    id: "3",
+    name: "Village Market",
+    aqi: 35,
+    pm25: 15,
+    pm10: 28,
+    lat: -1.2505,
+    lng: 36.8031,
+    historicalData: generateHistoricalData(35, 15, 28),
+  },
+  {
+    id: "4",
+    name: "Westlands",
+    aqi: 46,
+    pm25: 19,
+    pm10: 32,
+    lat: -1.2676,
+    lng: 36.8108,
+    historicalData: generateHistoricalData(46, 19, 32),
+  },
+  {
+    id: "5",
+    name: "Gigiri",
+    aqi: 25,
+    pm25: 12,
+    pm10: 20,
+    lat: -1.2342,
+    lng: 36.8156,
+    historicalData: generateHistoricalData(25, 12, 20),
+  },
+  {
+    id: "6",
+    name: "Kasarani",
+    aqi: 32,
+    pm25: 14,
+    pm10: 25,
+    lat: -1.2198,
+    lng: 36.8897,
+    historicalData: generateHistoricalData(32, 14, 25),
+  },
+  {
+    id: "7",
+    name: "Embakasi",
+    aqi: 78,
+    pm25: 38,
+    pm10: 65,
+    lat: -1.3031,
+    lng: 36.8978,
+    historicalData: generateHistoricalData(78, 38, 65),
+  },
+  {
+    id: "8",
+    name: "Kibera",
+    aqi: 67,
+    pm25: 32,
+    pm10: 55,
+    lat: -1.3133,
+    lng: 36.7919,
+    historicalData: generateHistoricalData(67, 32, 55),
+  },
+  {
+    id: "9",
+    name: "Mathare",
+    aqi: 72,
+    pm25: 35,
+    pm10: 58,
+    lat: -1.2588,
+    lng: 36.8581,
+    historicalData: generateHistoricalData(72, 35, 58),
+  },
+  {
+    id: "10",
+    name: "Eastlands",
+    aqi: 58,
+    pm25: 28,
+    pm10: 45,
+    lat: -1.2743,
+    lng: 36.8919,
+    historicalData: generateHistoricalData(58, 28, 45),
+  },
+  {
+    id: "11",
+    name: "Ngong Road",
+    aqi: 41,
+    pm25: 18,
+    pm10: 30,
+    lat: -1.3019,
+    lng: 36.8108,
+    historicalData: generateHistoricalData(41, 18, 30),
+  },
+  {
+    id: "12",
+    name: "Thika Road",
+    aqi: 39,
+    pm25: 16,
+    pm10: 29,
+    lat: -1.2198,
+    lng: 36.8581,
+    historicalData: generateHistoricalData(39, 16, 29),
+  },
+  {
+    id: "13",
+    name: "Langata",
+    aqi: 29,
+    pm25: 13,
+    pm10: 22,
+    lat: -1.3667,
+    lng: 36.7919,
+    historicalData: generateHistoricalData(29, 13, 22),
+  },
+  {
+    id: "14",
+    name: "Parklands",
+    aqi: 33,
+    pm25: 15,
+    pm10: 26,
+    lat: -1.2505,
+    lng: 36.8297,
+    historicalData: generateHistoricalData(33, 15, 26),
+  },
+  {
+    id: "15",
+    name: "Industrial Area",
+    aqi: 85,
+    pm25: 42,
+    pm10: 70,
+    lat: -1.3019,
+    lng: 36.8581,
+    historicalData: generateHistoricalData(85, 42, 70),
+  },
+];
 
 function getPollutantValue(station: Station, pollutant: PollutantType): number {
   switch (pollutant) {
@@ -281,6 +282,10 @@ function getPollutantLevel(value: number, pollutant: PollutantType): string {
 }
 
 export default function Dashboard() {
+
+
+  const [trendsStationn, setTrendsStationn] = useState<FakeStation>(fakeStations[0]);
+  // 
   const [stations, setStations] = useState<Station[]>([]);
   const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -620,7 +625,7 @@ useEffect(() => {
                   className="flex items-center gap-2 px-4 py-2 bg-white border border-[#eaecf0] rounded-lg hover:bg-[#eaecf0] transition-colors w-full sm:w-auto justify-between"
                 >
                   <span className="text-[#101828] font-medium truncate">
-                    {trendsStation?.name}
+                    {trendsStationn?.name}
                   </span>
                   <ChevronDown
                     className={`w-4 h-4 text-[#667085] transition-transform flex-shrink-0 ${
@@ -631,10 +636,11 @@ useEffect(() => {
 
                 {isTrendsDropdownOpen && (
                   <div className="absolute my-16 top-full left-0 right-0 sm:right-0 sm:left-auto mt-1 bg-white border border-[#eaecf0] rounded-lg shadow-lg z-50 min-w-[200px] max-h-[300px] overflow-y-auto">
-                    {stations.map((station) => (
+                    {fakeStations.map((station) => (
                       <button
                         key={station.id}
                         onClick={() => {
+                          setTrendsStationn(station);
                           setTrendsStation(station);
                           getHistoricalData(station.id);
                           setIsTrendsDropdownOpen(false);
@@ -644,7 +650,7 @@ useEffect(() => {
                         <span className="text-[#101828] font-medium truncate">
                           {station.name}
                         </span>
-                        {trendsStation?.id === station.id && (
+                        {trendsStationn?.id === station.id && (
                           <Check className="w-4 h-4 text-[#101828] flex-shrink-0 ml-2" />
                         )}
                       </button>
@@ -653,9 +659,17 @@ useEffect(() => {
                 )}
               </div>
             </div>
-            <TrendsChart
+            {/* <TrendsChart
               data={historicalData}
               pollutant={selectedPollutant}
+              pollutantLabel={currentPollutantOption.label}
+              pollutantUnit={currentPollutantOption.unit}
+            /> */}
+
+        <TrendsCharttt
+              data={trendsStationn.historicalData}
+              pollutant={selectedPollutant}
+              stationName={trendsStationn.name}
               pollutantLabel={currentPollutantOption.label}
               pollutantUnit={currentPollutantOption.unit}
             />

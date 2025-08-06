@@ -8,6 +8,19 @@ const api = axios.create({
   },
 });
 
+export interface FakeStation {
+  id: string;
+  sensorId: string;
+  name: string;
+  aqi: number;
+  pm25: number;
+  pm10: number;
+  lat: number;
+  lng: number;
+  sensorType?: string;
+  historicalData: FakeHistoricalData[];
+}
+
 export interface Station {
   id: string;
   sensorId: string;
@@ -26,6 +39,14 @@ export interface HistoricalData {
   avg_aqi: number;
   avg_pm25: number;
   avg_pm10: number;
+}
+
+
+export interface FakeHistoricalData {
+  date: string;
+  aqi: number;
+  pm25: number;
+  pm10: number;
 }
 
 export const getStations = async () => {
