@@ -18,39 +18,27 @@ export interface Station {
   lat: number;
   lng: number;
   sensorType?: string;
-  // historicalData: HistoricalData[];
+}
+
+
+export interface HistoricalData {
+  date: string;
+  avg_aqi: number;
+  avg_pm25: number;
+  avg_pm10: number;
 }
 
 export const getStations = async () => {
   const response = await api.get("/stations");
-
-  const stationsWithCoords = response.data.map((station: any) => ({
-    ...station,
-    lat: "-1.2321",
-    lng: "36.8947",
-    aqi: "10"
-  }));
-
-  console.log(stationsWithCoords);
-  return stationsWithCoords;
+  return response.data;
 };
 
-export const getHistoricalData = async () => {
-  const response = await api.get("/sensors/1/readings/?range=30");
-  const readinWithAqi = response.data.map((historicalData: any) => ({
-    ...historicalData,
-    avg_aqi: 10
-  }));
-
-  console.log(readinWithAqi)
-  return readinWithAqi;
+export const getHistoricalData = async (sensorId: string) => {
+  const response = await api.get(`/sensors/${sensorId}/readings/?range=30`);
+  return response.data;
 };
 
-export const subscribeToAlerts = async (
-  from: string,
-  to: string,
-  amount: number
-) => {
-  const response = await api.post("/alerts", { from, to, amount });
+export const subscribeToAlerts = async (email: string) => {
+  const response = await api.post("/alerts/subscribe", { email });
   return response.data;
 };

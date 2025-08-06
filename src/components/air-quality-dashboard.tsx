@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Check } from "lucide-react";
 import dynamic from "next/dynamic";
 import TrendsChart from "@/components/trends-chart";
@@ -8,30 +8,14 @@ import EmailAlertSection from "@/components/email-alert-section";
 import FeedbackSection from "@/components/feedbacksection";
 import Footer from "@/components/footersection";
 import { getHistoricalData, getStations } from "@/lib/api";
+import Legend from "./legend";
+import { HistoricalData } from '@/lib/api'
+import { Station } from '@/lib/api'
+
 // Dynamically import MapComponent with SSR disabled
 const MapComponent = dynamic(() => import("./map-component"), {
   ssr: false,
 });
-
-export interface Station {
-  id: string;
-  sensorId: string;
-  name: string;
-  aqi: number;
-  pm25: number;
-  pm10: number;
-  lat: number;
-  lng: number;
-  sensorType?: string;
-  // historicalData: HistoricalData[];
-}
-
-interface HistoricalData {
-  date: string;
-  aqi: number;
-  pm25: number;
-  pm10: number;
-}
 
 type PollutantType = "aqi" | "pm25" | "pm10";
 
@@ -66,9 +50,9 @@ const pollutantOptions: PollutantOption[] = [
 
 //     data.push({
 //       date: date.toISOString().split("T")[0],
-//       aqi: Math.round(baseAqi * (1 + variation + seasonalTrend)),
-//       pm25: Math.round(basePm25 * (1 + variation + seasonalTrend)),
-//       pm10: Math.round(basePm10 * (1 + variation + seasonalTrend)),
+//       avg_aqi: Math.round(baseAqi * (1 + variation + seasonalTrend)),
+//       avg_pm25: Math.round(basePm25 * (1 + variation + seasonalTrend)),
+//       avg_pm10: Math.round(basePm10 * (1 + variation + seasonalTrend)),
 //     });
 //   }
 
@@ -229,9 +213,6 @@ const pollutantOptions: PollutantOption[] = [
 //   },
 // ];
 
-
-
-
 function getPollutantValue(station: Station, pollutant: PollutantType): number {
   switch (pollutant) {
     case "aqi":
@@ -246,88 +227,110 @@ function getPollutantValue(station: Station, pollutant: PollutantType): number {
 }
 
 function getPollutantColor(value: number, pollutant: PollutantType): string {
+  const colorByAQI = (aqi: number): string => {
+    if (aqi <= 50) return "#00e400"; // Good – Green
+    if (aqi <= 100) return "#ffff00"; // Moderate – Yellow
+    if (aqi <= 150) return "#ff7e00"; // Unhealthy for sensitive – Orange
+    if (aqi <= 200) return "#ff0000"; // Unhealthy – Red
+    if (aqi <= 300) return "#8f3f97"; // Very unhealthy – Purple
+    return "#7e0023"; // Hazardous – Maroon
+  };
+
   if (pollutant === "aqi") {
-    if (value <= 30) return "#a8e05f"; // Good - Green
-    if (value <= 50) return "#fdd64b"; // Moderate - Yellow
-    if (value <= 70) return "#facf39"; // Unhealthy for sensitive - Orange
-    return "#f05151"; // Unhealthy - Red
+    return colorByAQI(value);
   } else if (pollutant === "pm25") {
-    if (value <= 12) return "#a8e05f"; // Good - Green
-    if (value <= 25) return "#fdd64b"; // Moderate - Yellow
-    if (value <= 35) return "#facf39"; // Unhealthy for sensitive - Orange
-    return "#f05151"; // Unhealthy - Red
+    // assume value already given as AQI-equivalent scale
+    return colorByAQI(value);
   } else if (pollutant === "pm10") {
-    if (value <= 20) return "#a8e05f"; // Good - Green
-    if (value <= 40) return "#fdd64b"; // Moderate - Yellow
-    if (value <= 60) return "#facf39"; // Unhealthy for sensitive - Orange
-    return "#f05151"; // Unhealthy - Red
+    // assume value is pm10 broken into equivalent AQI ranges
+    return colorByAQI(value);
   }
-  return "#a8e05f";
+
+  return "#00e400"; // default – Good
 }
 
 function getPollutantLevel(value: number, pollutant: PollutantType): string {
   if (pollutant === "aqi") {
-    if (value <= 30) return "Good";
-    if (value <= 50) return "Moderate";
-    if (value <= 70) return "Unhealthy for Sensitive";
-    return "Unhealthy";
-  } else if (pollutant === "pm25") {
-    if (value <= 12) return "Good";
-    if (value <= 25) return "Moderate";
-    if (value <= 35) return "Unhealthy for Sensitive";
-    return "Unhealthy";
-  } else if (pollutant === "pm10") {
-    if (value <= 20) return "Good";
-    if (value <= 40) return "Moderate";
-    if (value <= 60) return "Unhealthy for Sensitive";
-    return "Unhealthy";
+    if (value <= 50) return "Good";
+    if (value <= 100) return "Moderate";
+    if (value <= 150) return "Unhealthy for Sensitive Groups";
+    if (value <= 200) return "Unhealthy";
+    if (value <= 300) return "Very Unhealthy";
+    return "Hazardous";
   }
+
+  if (pollutant === "pm25") {
+    if (value <= 12) return "Good";
+    if (value <= 35.4) return "Moderate";
+    if (value <= 55.4) return "Unhealthy for Sensitive Groups";
+    if (value <= 150.4) return "Unhealthy";
+    if (value <= 250.4) return "Very Unhealthy";
+    return "Hazardous";
+  }
+
+  if (pollutant === "pm10") {
+    if (value <= 54) return "Good";
+    if (value <= 154) return "Moderate";
+    if (value <= 254) return "Unhealthy for Sensitive Groups";
+    if (value <= 354) return "Unhealthy";
+    if (value <= 424) return "Very Unhealthy";
+    return "Hazardous";
+  }
+
   return "Good";
 }
 
 export default function Dashboard() {
-
-  const [stations, setStations] = useState([])
-  const [historicalData, setHistoricalData ] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchStations = async () => {
-      try {
-        const data = await getStations()
-        setStations(data)
-      } catch (err: any) {
-        console.log(err.message || 'Failed to load stations')
-      } finally {
-        setLoading(false)
-      }
-    }
-    const fetchHistory = async () => {
-      try {
-        const data = await getHistoricalData()
-        setHistoricalData(data)
-      } catch (err: any) {
-        console.log(err.message || 'Failed to load stations')
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchStations()
-    fetchHistory()
-  }, []) 
-
-
-  console.log(stations)
-  
+  const [stations, setStations] = useState<Station[]>([]);
+  const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [trendsStation, setTrendsStation] = useState<Station | null>(null);
   const [selectedStation, setSelectedStation] = useState<Station | null>(null);
-  // const [selectedPollutant, setSelectedPollutant] = useState<PollutantType>("aqi");
-  const selectedPollutant = "aqi"
-  const [trendsStation, setTrendsStation] = useState<Station>(stations[0]); // Default to first station
-  // const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isTrendsDropdownOpen, setIsTrendsDropdownOpen] = useState(false);
 
+  const [selectedPollutant, setSelectedPollutant] =
+    useState<PollutantType>("aqi");
 
+  // const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+// Effect #1: Fetch historical data once on mount
+useEffect(() => {
+  const fetchHistoricalData = async () => {
+    try {
+      const historyData = await getHistoricalData('1')
+      setHistoricalData(historyData)
+    } catch (err: any) {
+      console.log(err.message || "Failed to load historical data")
+    }
+  }
+
+  fetchHistoricalData()
+}, [])
+
+// Effect #2: Fetch stations on mount and every 60 seconds
+useEffect(() => {
+  const fetchStations = async () => {
+    try {
+      const stationsData = await getStations()
+      setStations(stationsData)
+      setTrendsStation(stationsData[0])
+    } catch (err: any) {
+      console.log(err.message || "Failed to load stations")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Initial fetch
+  fetchStations()
+
+}, [])
+
+  
+  if (loading) return <p>Loading...</p>;
+
+  // const [selectedPollutant, setSelectedPollutant] = useState<PollutantType>("aqi");
+  // const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const currentPollutantOption = pollutantOptions.find(
     (option) => option.value === selectedPollutant
@@ -393,7 +396,7 @@ export default function Dashboard() {
 
           {/* Header */}
 
-          <div className="mb-6">
+          <div className="my-5">
             <h1 className="text-3xl font-bold text-gray-800">
               Nairobi Air Quality Portal
             </h1>
@@ -407,7 +410,7 @@ export default function Dashboard() {
 
           {/* Map Container */}
           <div className="relative rounded-lg overflow-hidden bg-gray-100 mb-32">
-            <div className="h-[400px] sm:h-[500px] lg:h-[600px]">
+            <div className="h-[400px] sm:h-[500px] lg:h-[650px]">
               <MapComponent
                 stations={stations}
                 selectedStation={selectedStation}
@@ -417,6 +420,10 @@ export default function Dashboard() {
                 getPollutantColor={getPollutantColor}
                 getPollutantLevel={getPollutantLevel}
               />
+            </div>
+            <div className="border-black w-full">
+              {" "}
+              <Legend />
             </div>
           </div>
 
@@ -613,7 +620,7 @@ export default function Dashboard() {
                   className="flex items-center gap-2 px-4 py-2 bg-white border border-[#eaecf0] rounded-lg hover:bg-[#eaecf0] transition-colors w-full sm:w-auto justify-between"
                 >
                   <span className="text-[#101828] font-medium truncate">
-                    {trendsStation.name}
+                    {trendsStation?.name}
                   </span>
                   <ChevronDown
                     className={`w-4 h-4 text-[#667085] transition-transform flex-shrink-0 ${
@@ -629,6 +636,7 @@ export default function Dashboard() {
                         key={station.id}
                         onClick={() => {
                           setTrendsStation(station);
+                          getHistoricalData(station.id);
                           setIsTrendsDropdownOpen(false);
                         }}
                         className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-[#eaecf0] transition-colors first:rounded-t-lg last:rounded-b-lg"
@@ -636,7 +644,7 @@ export default function Dashboard() {
                         <span className="text-[#101828] font-medium truncate">
                           {station.name}
                         </span>
-                        {trendsStation.id === station.id && (
+                        {trendsStation?.id === station.id && (
                           <Check className="w-4 h-4 text-[#101828] flex-shrink-0 ml-2" />
                         )}
                       </button>
@@ -648,11 +656,12 @@ export default function Dashboard() {
             <TrendsChart
               data={historicalData}
               pollutant={selectedPollutant}
-              stationName={trendsStation.name}
               pollutantLabel={currentPollutantOption.label}
               pollutantUnit={currentPollutantOption.unit}
             />
           </section>
+
+          {/* Trend stations is a station being looked at by the trends component */}
 
           {/* Email Section */}
           <section
@@ -672,7 +681,6 @@ export default function Dashboard() {
             <FeedbackSection />
           </section>
           {/* Footer  Section */}
-
         </div>
       </div>
       <section>
