@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import L, { divIcon } from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Station } from "@/air-quality-dashboard";
+import { Station } from "@/components/air-quality-dashboard";
 
 // interface Station {
 //   id: string;

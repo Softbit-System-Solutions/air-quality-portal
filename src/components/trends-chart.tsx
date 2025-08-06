@@ -13,12 +13,12 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
+} from "@/ui/chart"
+import { HistoricalData } from '@/lib/api'
 
 interface TrendsChartProps {
-  data: { date: string; aqi: number; pm25: number; pm10: number }[]
+  data:HistoricalData[]
   pollutant: "aqi" | "pm25" | "pm10"
-  stationName: string
   pollutantLabel: string
   pollutantUnit: string
 }
@@ -28,11 +28,12 @@ const DURATIONS = [7, 14, 30]
 export default function TrendsChart({
   data,
   pollutant,
-  stationName,
   pollutantLabel,
   pollutantUnit,
 }: TrendsChartProps) {
   const [duration, setDuration] = useState<number>(30)
+
+  console.log('data at the trends-chart.tsx', data, pollutant, pollutantLabel, pollutantUnit)
 
   const filteredData = data
     .slice(-duration)
@@ -41,9 +42,12 @@ export default function TrendsChart({
         month: "short",
         day: "numeric",
       }),
-      value: item[pollutant],
+      value: item.avg_aqi,
       fullDate: item.date,
     }))
+
+    console.log('filteredData')
+    console.log(filteredData)
 
   const getChartColor = () => {
     switch (pollutant) {
@@ -63,7 +67,7 @@ export default function TrendsChart({
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h4 className="text-[#101828] font-medium">
-            {pollutantLabel} Trends - {stationName}
+            {/* {pollutantLabel} Trends - {data} */}
           </h4>
                 {/* Duration selector */}
         <select

@@ -1,20 +1,19 @@
-import type { Metadata } from 'next'
-import './globals.css'
+import '@/styles/globals.css';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Air Quality',
   description: 'Air Quality of Nairobi',
-  // generator: 'blakbox23',
-}
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="en">
       <body>{children}</body>
     </html>
-  )
+  );
 }

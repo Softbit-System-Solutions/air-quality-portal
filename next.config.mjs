@@ -1,3 +1,4 @@
+// next.config.mjs
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
@@ -8,6 +9,15 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+  },
+
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://209.38.129.12/api/:path*/',
+      },
+    ]
   },
 }
 
