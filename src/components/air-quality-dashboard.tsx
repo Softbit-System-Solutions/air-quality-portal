@@ -9,8 +9,8 @@ import FeedbackSection from "@/components/feedbacksection";
 import Footer from "@/components/footersection";
 import { getHistoricalData, getStations } from "@/lib/api";
 import Legend from "./legend";
-import { HistoricalData } from '@/lib/api'
-import { Station } from '@/lib/api'
+import { HistoricalData } from "@/lib/api";
+import { Station } from "@/lib/api";
 
 // Dynamically import MapComponent with SSR disabled
 const MapComponent = dynamic(() => import("./map-component"), {
@@ -292,41 +292,40 @@ export default function Dashboard() {
     useState<PollutantType>("aqi");
 
   // const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
-// Effect #1: Fetch historical data once on mount
-useEffect(() => {
-  const fetchHistoricalData = async () => {
-    try {
-      const historyData = await getHistoricalData('1')
-      setHistoricalData(historyData)
-    } catch (err: any) {
-      console.log(err.message || "Failed to load historical data")
-    }
-  }
+  // Effect #1: Fetch historical data once on mount
+  useEffect(() => {
+    const fetchHistoricalData = async () => {
+      try {
+        const historyData = await getHistoricalData("1");
+        setHistoricalData(historyData);
+      } catch (err: any) {
+        console.log(err.message || "Failed to load historical data");
+      }
+    };
 
-  fetchHistoricalData()
-}, [])
+    fetchHistoricalData();
+  }, []);
 
-// Effect #2: Fetch stations on mount and every 60 seconds
-useEffect(() => {
-  const fetchStations = async () => {
-    try {
-      const stationsData = await getStations()
-      setStations(stationsData)
-      setTrendsStation(stationsData[0])
-    } catch (err: any) {
-      console.log(err.message || "Failed to load stations")
-    } finally {
-      setLoading(false)
-    }
-  }
+  // Effect #2: Fetch stations on mount and every 60 seconds
+  useEffect(() => {
+    const fetchStations = async () => {
+      try {
+        const stationsData = await getStations();
+        setStations(stationsData);
+        setTrendsStation(stationsData[0]);
+      } catch (err: any) {
+        console.log(err.message || "Failed to load stations");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Initial fetch
-  fetchStations()
+    // Initial fetch
+    fetchStations();
+  }, []);
 
-}, [])
-
-  
   if (loading) return <p>Loading...</p>;
 
   // const [selectedPollutant, setSelectedPollutant] = useState<PollutantType>("aqi");
@@ -335,6 +334,11 @@ useEffect(() => {
   const currentPollutantOption = pollutantOptions.find(
     (option) => option.value === selectedPollutant
   )!;
+
+  // Filter stations by name case-insensitive
+  const filteredStations = stations.filter((station) =>
+    station.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="bg-[#ffffff] min-h-screen">
@@ -409,7 +413,7 @@ useEffect(() => {
           </div>
 
           {/* Map Container */}
-          <div className="relative rounded-lg overflow-hidden bg-gray-100 mb-32">
+          <div className="relative rounded-lg overflow-hidden bg-gray-100">
             <div className="h-[400px] sm:h-[500px] lg:h-[650px]">
               <MapComponent
                 stations={stations}
@@ -421,15 +425,49 @@ useEffect(() => {
                 getPollutantLevel={getPollutantLevel}
               />
             </div>
-            <div className="border-black w-full">
+            <div className="border-black w-full py-2">
               {" "}
               <Legend />
             </div>
           </div>
 
-          {/* Selected Station Info
-          {selectedStation && (
-            <div className="mb-6 p-4 bg-[#eaecf0] rounded-lg border border-[#667085]">
+          {/* Selected Station Info */}
+          <div className="mb-6 p-4 bg-[#eaefff] rounded-lg">
+            <div className="mb-4">
+              <input
+                type="text"
+                placeholder="Search station by name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full p-2 border rounded"
+              />
+
+              {searchTerm && (
+                <ul className="max-h-40 overflow-auto bg-white border rounded mt-1">
+                  {filteredStations.length > 0 ? (
+                    filteredStations.map((station) => (
+                      <li
+                        key={station.id}
+                        onClick={() => {
+                          setSelectedStation(station);
+                          setSearchTerm(""); // clear search after select
+                        }}
+                        className="p-2 cursor-pointer hover:bg-gray-200"
+                      >
+                        {station.name}
+                      </li>
+                    ))
+                  ) : (
+                    <li className="p-2 italic text-gray-500">
+                      No matching stations
+                    </li>
+                  )}
+                </ul>
+              )}
+            </div>
+
+            {/* Selected Station Info Display */}
+            {selectedStation && (
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="text-[#101828] font-semibold">
@@ -462,13 +500,14 @@ useEffect(() => {
                   <button
                     onClick={() => setSelectedStation(null)}
                     className="text-[#667085] hover:text-[#101828] text-sm"
+                    aria-label="Clear selected station"
                   >
                     ✕
                   </button>
                 </div>
               </div>
-            </div>
-          )} */}
+            )}
+          </div>
 
           {/* Bottom Tables */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 my-32">
@@ -495,7 +534,7 @@ useEffect(() => {
                       getPollutantValue(a, selectedPollutant) -
                       getPollutantValue(b, selectedPollutant)
                   )
-                  .slice(0, 3)
+                  .slice(0, 5)
                   .map((station, index) => {
                     const value = getPollutantValue(station, selectedPollutant);
                     return (
@@ -547,7 +586,7 @@ useEffect(() => {
                 <div className="hidden sm:grid grid-cols-12 gap-4 px-4 py-3 bg-[#eaecf0] text-[#667085] text-sm font-medium">
                   <div className="col-span-1">#</div>
                   <div className="col-span-8">Station</div>
-                  <div className="col-span-3">
+                  <div className="col-span-1">
                     {currentPollutantOption.label}
                   </div>
                 </div>
@@ -557,7 +596,7 @@ useEffect(() => {
                       getPollutantValue(b, selectedPollutant) -
                       getPollutantValue(a, selectedPollutant)
                   )
-                  .slice(0, 3)
+                  .slice(0, 5)
                   .map((station, index) => {
                     const value = getPollutantValue(station, selectedPollutant);
                     return (
