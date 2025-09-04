@@ -2,23 +2,9 @@
 
 import React, { useState } from "react";
 import { Star, Send, AlertCircle } from "lucide-react";
+import { submitFeedback, FeedbackData } from "./lib/api";
 
-interface FeedbackData {
-  rating: number;
-  message: string;
-  email: string;
-  name: string;
-}
-
-interface FeedbackSectionProps {
-  onSubmitFeedback?: (data: FeedbackData) => Promise<void> | void;
-  apiBaseUrl?: string;
-}
-
-const FeedbackSection: React.FC<FeedbackSectionProps> = ({
-  onSubmitFeedback,
-  apiBaseUrl = "http://209.38.129.12/api",
-}) => {
+const FeedbackSection: React.FC = () => {
   const [rating, setRating] = useState<number>(0);
   const [hoveredRating, setHoveredRating] = useState<number>(0);
   const [message, setMessage] = useState<string>("");
@@ -28,37 +14,16 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
-  const handleStarClick = (starIndex: number): void => {
+  const handleStarClick = (starIndex: number) => {
     setRating(starIndex);
     setError("");
   };
 
-  const handleStarHover = (starIndex: number): void => {
+  const handleStarHover = (starIndex: number) => {
     setHoveredRating(starIndex);
   };
 
-  const submitFeedbackToAPI = async (
-    feedbackData: FeedbackData
-  ): Promise<void> => {
-    const response = await fetch(`${apiBaseUrl}/feedback/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(feedbackData),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        errorData.message || `HTTP error! status: ${response.status}`
-      );
-    }
-
-    return await response.json();
-  };
-
-  const handleSubmit = async (): Promise<void> => {
+  const handleSubmit = async () => {
     if (rating > 0 && message.trim()) {
       setIsLoading(true);
       setError("");
@@ -71,13 +36,9 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({
       };
 
       try {
-        if (onSubmitFeedback) {
-          await onSubmitFeedback(feedbackData);
-        } else {
-          await submitFeedbackToAPI(feedbackData);
-        }
-
+        await submitFeedback(feedbackData); 
         setIsSubmitted(true);
+
         setTimeout(() => {
           setIsSubmitted(false);
           setRating(0);
@@ -85,12 +46,12 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({
           setEmail("");
           setName("");
         }, 3000);
-      } catch (error) {
-        console.error("Error submitting feedback:", error);
+      } catch (err: any) {
+        console.error("Error submitting feedback:", err);
         setError(
-          error instanceof Error
-            ? error.message
-            : "Failed to submit feedback. Please try again."
+          err.response?.data?.message ||
+            err.message ||
+            "Failed to submit feedback. Please try again."
         );
       } finally {
         setIsLoading(false);
@@ -100,20 +61,16 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ): void => {
+  ) => {
     const { name, value } = e.target;
-    if (name === "message") {
-      setMessage(value);
-    } else if (name === "email") {
-      setEmail(value);
-    } else if (name === "name") {
-      setName(value);
-    }
+    if (name === "message") setMessage(value);
+    if (name === "email") setEmail(value);
+    if (name === "name") setName(value);
     setError("");
   };
 
-  const getRatingText = (rating: number): string => {
-    const ratingTexts: { [key: number]: string } = {
+  const getRatingText = (rating: number) => {
+    const ratingTexts: Record<number, string> = {
       1: "Poor",
       2: "Fair",
       3: "Good",
@@ -135,7 +92,6 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({
           </p>
         </div>
 
-
         {isSubmitted ? (
           <div className="max-w-md mx-auto text-center">
             <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
@@ -154,12 +110,13 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({
               </div>
             )}
 
+            {/* Rating */}
             <div className="mb-6">
               <label className="block text-gray-700 text-sm font-medium mb-2">
                 How would you rate our air quality service?
               </label>
               <div className="flex justify-center space-x-1">
-                {[1, 2, 3, 4, 5].map((star: number) => (
+                {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     key={star}
                     type="button"
@@ -218,7 +175,7 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({
                 name="message"
                 value={message}
                 onChange={handleInputChange}
-                placeholder="Share your thoughts about our air quality monitoring service..."
+                placeholder="Share your thoughts..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 rows={4}
                 required
