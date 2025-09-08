@@ -9,7 +9,7 @@ const menuItems = [
   // { name: "Stations", href: "#stations" },
   { name: "Trends", href: "#trends" },
   { name: "Get alerts", href: "#alerts" },
-  { name: "Connect", href: "/about" },
+  { name: "Connect", href: "#feedback" },
 ]
 
 export default function Navbar() {

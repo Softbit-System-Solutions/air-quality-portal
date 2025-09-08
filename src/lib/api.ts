@@ -54,8 +54,8 @@ export const getStations = async () => {
   return response.data;
 };
 
-export const getHistoricalData = async (sensorId: string) => {
-  const response = await api.get(`/sensors/${sensorId}/readings/?range=30`);
+export const getHistoricalData = async (sensorId: string, period=24) => {
+  const response = await api.get(`/sensors/${sensorId}/readings/?range=${period}`);
   return response.data;
 };
 

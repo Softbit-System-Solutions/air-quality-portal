@@ -1,65 +1,145 @@
-// components/EmailAlertSection.tsx
+"use client";
 
-import { subscribeToAlerts } from "@/lib/api";
 import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/ui/dialog";
+import { Button } from "@/ui/button";
+import { Label } from "@/ui/label";
+import { Input } from "@/ui/input";
+import { Bell, X } from "lucide-react";
+
+const sensors = [
+  { value: "station1", label: "Nairobi Central Station" },
+  { value: "station2", label: "Westlands Station" },
+  { value: "station3", label: "Industrial Area Station" },
+  { value: "station4", label: "Kibera Station" },
+];
 
 export default function EmailAlertSection() {
+  const [selected, setSelected] = useState<{ value: string; label: string }[]>(
+    []
+  );
+  const [query, setQuery] = useState("");
   const [email, setEmail] = useState("");
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
+  const [name, setName] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSuccess(false);
-    setError("");
+  const filteredOptions = sensors.filter(
+    (s) =>
+      s.label.toLowerCase().includes(query.toLowerCase()) &&
+      !selected.find((sel) => sel.value === s.value)
+  );
 
-    try {
-      await subscribeToAlerts(email);
-      setSuccess(true);
-      setEmail("");
-    } catch (err: any) {
-      setError(err.message || "Subscription failed.");
-    }
+  const addSensor = (sensor: { value: string; label: string }) => {
+    setSelected([...selected, sensor]);
+    setQuery("");
+  };
+
+  const removeSensor = (value: string) => {
+    setSelected(selected.filter((s) => s.value !== value));
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex w-full max-w-xl rounded-lg overflow-hidden shadow-lg"
-    >
-      <input
-        type="email"
-        placeholder="Enter your email"
-        required
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="flex-grow px-4 py-3 text-black text-base focus:outline-none"
-      />
-      <button
-        type="submit"
-        className="bg-white text-[#2E7D32] p-3 flex items-center justify-center"
-        aria-label="Submit email"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-5 h-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button
+          size="lg"
+          className="bg-primary/70 hover:bg-primary/90 text-primary-foreground font-bold px-10 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M17 8l4 4m0 0l-4 4m4-4H3"
-          />
-        </svg>
-      </button>
+          {" "}
+          <Bell className="mr-2 h-5 w-5" /> Get Air Quality Alerts{" "}
+        </Button>
+      </DialogTrigger>
 
-      {success && (
-        <p className="text-green-600 ml-4">Subscribed successfully!</p>
-      )}
-      {error && <p className="text-red-600 ml-4">{error}</p>}
-    </form>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Get Air Quality Alerts</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-6">
+          {/* Name */}
+          <div>
+            <Label>Name</Label>
+            <Input
+              type="text"
+              placeholder="John Doe"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <Label>Email Address</Label>
+            <Input
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+
+          {/* Sensors Multi-select */}
+          <div>
+            <Label>Sensors</Label>
+            <div className="border rounded-md px-2 py-1 flex flex-wrap gap-2 focus-within:ring-2 focus-within:ring-green-600">
+              {selected.map((sensor) => (
+                <span
+                  key={sensor.value}
+                  className="flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-md text-sm"
+                >
+                  {sensor.label}
+                  <button
+                    type="button"
+                    onClick={() => removeSensor(sensor.value)}
+                    className="ml-1 hover:text-red-600"
+                  >
+                    <X size={14} />
+                  </button>
+                </span>
+              ))}
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={
+                  selected.length ? "" : "Search and select sensors..."
+                }
+                className="flex-grow min-w-[120px] outline-none p-1 text-sm"
+              />
+            </div>
+
+            {/* Dropdown for options */}
+            {query && filteredOptions.length > 0 && (
+              <div className="border rounded-md mt-1 bg-white shadow-lg max-h-40 overflow-auto z-50 relative">
+                {filteredOptions.map((s) => (
+                  <div
+                    key={s.value}
+                    onClick={() => addSensor(s)}
+                    className="px-3 py-2 cursor-pointer hover:bg-gray-100"
+                  >
+                    {s.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <Button
+            className="w-full bg-green-700 hover:bg-green-800"
+            onClick={() => {
+              console.log({ name, email, sensors: selected });
+              setIsOpen(false); // close modal on submit
+            }}
+          >
+            Subscribe
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
