@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import L, { divIcon } from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Station } from "@/components/air-quality-dashboard";
+import { Station } from "@/lib/api";
 
 // interface Station {
 //   id: string;
@@ -51,8 +51,8 @@ export default function MapComponent({
     return divIcon({
       html: `
         <div style="
-          width: 32px;
-          height: 32px;
+          width: 2rem;
+          height: 2rem;
           background-color: ${color};
           border: 2px solid white;
           border-radius: 50%;
