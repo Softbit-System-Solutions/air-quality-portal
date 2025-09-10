@@ -65,7 +65,7 @@ export default function MapComponent({
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
           cursor: pointer;
           transition: all 0.2s;
-          ${isSelected ? "transform: scale(1.2); box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.2);" : ""}
+          ${isSelected ? "transform: scale(1.6); box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.2);" : ""}
         ">
           ${value}
         </div>

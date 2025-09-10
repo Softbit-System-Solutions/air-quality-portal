@@ -2,25 +2,55 @@
 
 import { useEffect, useState } from "react";
 import {
-  Line,
-  LineChart,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  ResponsiveContainer,
-  Label,            // ✅ use Label components for axis labels
-} from "recharts";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/ui/chart";
-import { getHistoricalData, HistoricalData, Station } from "@/lib/api";
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import annotationPlugin from "chartjs-plugin-annotation";
+import { Line } from "react-chartjs-2";
+
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/ui/select";
+import { Button } from "@/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/ui/dropdown-menu";
 import { Check, ChevronDown } from "lucide-react";
 
-interface TrendsChartProps {
-  stations: Station[];
-  data: HistoricalData[];
-  pollutant: "aqi" | "pm25" | "pm10";
-  pollutantLabel: string;
-  pollutantUnit: string;
-}
+import { getHistoricalData, HistoricalData, Station } from "@/lib/api";
+
+import { ChartOptions } from "chart.js";
+
+// ✅ register chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  annotationPlugin
+);
 
 type PollutantType = "aqi" | "pm25" | "pm10";
 
@@ -30,267 +60,229 @@ interface PollutantOption {
   unit: string;
 }
 
+interface TrendsChartProps {
+  stations: Station[];
+  pollutant: PollutantType;
+  pollutantLabel: string;
+  pollutantUnit: string;
+}
+
 const DURATIONS = [3, 6, 12, 24, 48, 72];
 
-const POLLUTANT_VALUE_FIELD: Record<PollutantType, keyof HistoricalData> = {
-  aqi: "avg_aqi",
-  pm25: "avg_pm25",
-  pm10: "avg_pm10",
+const POLLUTANT_COLOR_MAP: Record<PollutantType, string> = {
+  aqi: "#3b82f6",
+  pm25: "#ef4444",
+  pm10: "#f59e0b",
 };
 
-const POLLUTANT_COLOR_MAP: Record<PollutantType, string> = {
-  aqi: "#3b82f6", // Blue
-  pm25: "#ef4444", // Red
-  pm10: "#f59e0b", // Orange
+// Example threshold values
+const THRESHOLD_MAP: Record<PollutantType, number> = {
+  aqi: 100,
+  pm25: 25,
+  pm10: 50,
 };
+
+const pollutantOptions: PollutantOption[] = [
+  { value: "aqi", label: "AQI", unit: "" },
+  { value: "pm25", label: "PM 2.5", unit: "μg/m³" },
+  { value: "pm10", label: "PM 10", unit: "μg/m³" },
+];
 
 export default function TrendsChart({
   stations,
-  data,
   pollutant,
   pollutantLabel,
   pollutantUnit,
 }: TrendsChartProps) {
-  const [duration, setDuration] = useState<number>(24);
-  const [trendsStation, setTrendsStation] = useState<Station | null>(stations[0] || null);
-  const [historicalData, setHistoricalData] = useState<HistoricalData[]>(Array.isArray(data) ? data : []);
-  const [isDropdownPollutantOpen, setPollutantDropdownIsOpen] = useState(false);
-  const [selectedPollutant, setSelectedPollutant] = useState<PollutantType>(pollutant);
+  const [duration, setDuration] = useState(12);
+  const [trendsStation, setTrendsStation] = useState<Station | null>(
+    stations[0] || null
+  );
+  const [selectedPollutant, setSelectedPollutant] = useState<PollutantType>(
+    pollutant
+  );
 
-  const pollutantOptions: PollutantOption[] = [
-    { value: "aqi", label: "AQI", unit: "" },
-    { value: "pm25", label: "PM 2.5", unit: "μg/m³" },
-    { value: "pm10", label: "PM 10", unit: "μg/m³" },
-  ];
+  const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
 
-  // Fetch data when station or duration changes
   useEffect(() => {
-    if (!trendsStation) return;
-
-    const fetchHistoricalData = async () => {
+    const fetchData = async () => {
       try {
-        const historyData = await getHistoricalData(trendsStation.id, duration);
+        const stationId = trendsStation?.id ?? "1";
+        const historyData = await getHistoricalData(stationId, duration);
         setHistoricalData(Array.isArray(historyData) ? historyData : []);
-      } catch (error) {
-        console.error("Failed to load historical data", error);
+      } catch (err) {
+        console.error(err);
         setHistoricalData([]);
       }
     };
-
-    fetchHistoricalData();
-  }, [trendsStation, duration]);
+    fetchData();
+  }, [trendsStation, duration, selectedPollutant]);
 
   const currentPollutantOption =
-    pollutantOptions.find((opt) => opt.value === selectedPollutant) || pollutantOptions[0];
+    pollutantOptions.find((p) => p.value === selectedPollutant) ||
+    pollutantOptions[0];
 
-  const valueField = POLLUTANT_VALUE_FIELD[selectedPollutant];
+  const thresholdValue = THRESHOLD_MAP[selectedPollutant] ?? 0;
 
-  const filteredData = (historicalData ?? []).slice(-duration).map((item) => ({
-    date: new Date(item.date).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    }),
-    value: item[valueField] as number,
-    fullDate: item.date,
-  }));
+  const chartData = {
+    labels: historicalData
+      .slice(-duration)
+      .map((item) =>
+        new Date(item.timestamp).toLocaleString("en-US", {
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      ),
+    datasets: [
+      {
+        label: `${currentPollutantOption.label}${
+          currentPollutantOption.unit ? ` (${currentPollutantOption.unit})` : ""
+        }`,
+        data: historicalData
+          .slice(-duration)
+          .map((item) => {
+            if (selectedPollutant === "aqi") return item.aqi;
+            if (selectedPollutant === "pm25") return item.pm25;
+            return item.pm10;
+          }),
+        borderColor: POLLUTANT_COLOR_MAP[selectedPollutant],
+        backgroundColor: POLLUTANT_COLOR_MAP[selectedPollutant] + "33",
+        fill: true,
+        tension: 0.3,
+      },
+      {
+        label: `Threshold (${thresholdValue})`,
+        data: Array(historicalData.slice(-duration).length).fill(thresholdValue),
+        borderColor: "red",
+        borderWidth: 1,
+        borderDash: [5, 5],
+        pointRadius: 0, // hide points
+        fill: false,
+      },
+    ],
+  };
+  
+  
 
-  const chartColor = POLLUTANT_COLOR_MAP[selectedPollutant] || "#3b82f6";
+  const options: ChartOptions<"line"> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: "top" },
+      tooltip: { mode: "index" as const },
+      annotation: {
+        annotations: {
+          thresholdLine: {
+            type: "line",
+            yMin: thresholdValue,
+            yMax: thresholdValue,
+            borderColor: "red",
+            borderWidth: 0.5,
+            borderDash: [5, 5],
+            label: {
+              display: true,
+              position: "end",   // end of the line
+              color: "red",
+              backgroundColor: "transparent",
+              font: { weight: "bold", size: 12 },
+              xAdjust: 0,       // moves label slightly right
+              yAdjust: 0,
+            },
+          },
+        },
+      },
+    },
+    scales: {
+      x: { title: { display: true, text: "Time" } },
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: `${currentPollutantOption.label}${
+            currentPollutantOption.unit ? ` (${currentPollutantOption.unit})` : ""
+          }`,
+        },
+      },
+    },
+  };
+  
+  
 
   return (
-    <div className="h-full max-w-7xl mx-auto p-4">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-        <h3 className="text-[#101828] font-semibold text-2xl">
-          Air Quality Trends in Nairobi
-        </h3>
-      </div>
-
-      <div className="border rounded-lg p-4 mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          {/* Duration selector */}
-          <div>
-            <h4 className="text-[#101828] font-medium text-lg mb-2">
-              {pollutantLabel} Trends
-            </h4>
-            <select
-              value={duration}
-              onChange={(e) => setDuration(parseInt(e.target.value))}
-              className="text-sm border rounded px-3 py-1 text-[#101828] bg-white cursor-pointer"
-            >
-              {DURATIONS.map((period) => (
-                <option key={period} value={period}>
-                  Last {period} hours
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Station selector */}
-          <select
-            value={trendsStation?.id || ""}
-            onChange={(e) => {
-              const selectedId = e.target.value;
-              const selectedStation =
-                stations.find((station) => station.id === selectedId) || null;
-              if (selectedStation) {
-                setTrendsStation(selectedStation);
-              }
-            }}
-            className="px-4 py-2 bg-white border border-[#eaecf0] rounded-lg hover:bg-[#eaecf0] transition-colors text-[#101828] font-medium cursor-pointer w-full sm:w-auto"
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Air Quality Trends in Nairobi</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-wrap gap-4 mb-5">
+          {/* Duration */}
+          <Select
+            value={duration.toString()}
+            onValueChange={(val) => setDuration(parseInt(val))}
           >
-            {stations.map((station) => (
-              <option key={station.id} value={station.id}>
-                {station.name}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select duration" />
+            </SelectTrigger>
+            <SelectContent>
+              {DURATIONS.map((d) => (
+                <SelectItem key={d} value={d.toString()}>
+                  Last {d} hours
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-          {/* Pollutant selector dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setPollutantDropdownIsOpen(!isDropdownPollutantOpen)}
-              className="flex items-center gap-2 px-3 py-2 border border-[#eaecf0] rounded-lg bg-white hover:bg-[#eaecf0] transition-colors text-[#101828] font-medium w-full sm:w-auto justify-between cursor-pointer"
-              aria-haspopup="listbox"
-              aria-expanded={isDropdownPollutantOpen}
-            >
-              <span className="truncate">{currentPollutantOption.label}</span>
-              <ChevronDown
-                className={`w-4 h-4 text-[#667085] transition-transform ${
-                  isDropdownPollutantOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
+          {/* Station */}
+          <Select
+            value={trendsStation?.id ?? ""}
+            onValueChange={(val) => {
+              const selected = stations.find((s) => s.id === val) || null;
+              setTrendsStation(selected);
+            }}
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Select station" />
+            </SelectTrigger>
+            <SelectContent>
+              {stations.map((s) => (
+                <SelectItem key={s.id} value={s.id}>
+                  {s.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-            {isDropdownPollutantOpen && (
-              <div
-                className="absolute top-full right-0 mt-1 bg-white border border-[#eaecf0] rounded-lg shadow-lg z-50 min-w-[140px]"
-                role="listbox"
-              >
-                {pollutantOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => {
-                      setSelectedPollutant(option.value);
-                      setPollutantDropdownIsOpen(false);
-                    }}
-                    className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-[#eaecf0] transition-colors first:rounded-t-lg last:rounded-b-lg cursor-pointer"
-                    role="option"
-                    aria-selected={selectedPollutant === option.value}
-                    tabIndex={0}
-                  >
-                    <span className="text-[#101828] font-medium truncate">
-                      {option.label}
-                    </span>
-                    {selectedPollutant === option.value && (
-                      <Check className="w-4 h-4 text-[#101828]" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Pollutant */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2">
+                {currentPollutantOption.label}
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {pollutantOptions.map((opt) => (
+                <DropdownMenuItem
+                  key={opt.value}
+                  onClick={() => setSelectedPollutant(opt.value)}
+                >
+                  {opt.label}
+                  {selectedPollutant === opt.value && (
+                    <Check className="ml-auto h-4 w-4" />
+                  )}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
-        {/* Pollutant unit display */}
-        <div className="text-[#101828] font-medium text-lg sm:text-xl">
-          {currentPollutantOption.label}
-          {currentPollutantOption.unit && (
-            <span className="text-[#667085] font-normal ml-1 text-base">
-              ({currentPollutantOption.unit})
-            </span>
-          )}
+        {/* Chart */}
+        <div className="h-[400px] w-full">
+          <Line data={chartData} options={options} />
         </div>
-      </div>
-
-      {/* Chart */}
-      <div className="w-full h-[300px] sm:h-[350px] lg:h-[400px]">
-        <ChartContainer
-          config={{
-            value: {
-              label: currentPollutantOption.label,
-              color: chartColor,
-            },
-          }}
-          className="w-full h-full overflow-visible"   // ✅ ensure labels aren't clipped
-        >
-          <div className="w-full h-full overflow-visible"> {/* ✅ wrapper to allow overflow */}
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={filteredData}
-                margin={{ top: 16, right: 32, left: 56, bottom: 40 }} // ✅ more room for labels
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#eaecf0" />
-
-                {/* X Axis */}
-                <XAxis
-                  dataKey="date"
-                  stroke="#667085"
-                  fontSize={12}
-                  tickLine={true}
-                  axisLine={true}
-                >
-                  <Label
-                    value="Time"
-                    position="insideBottom"  // ✅ inside to avoid clipping
-                    offset={-10}
-                    style={{ fill: "#667085", fontSize: 13 }}
-                  />
-                </XAxis>
-
-                {/* Y Axis */}
-                <YAxis
-                  stroke="#667085"
-                  fontSize={12}
-                  tickLine={true}
-                  axisLine={true}
-                >
-                  <Label
-                    value={`${currentPollutantOption.label}${
-                      currentPollutantOption.unit ? ` (${currentPollutantOption.unit})` : ""
-                    }`}
-                    angle={-90}
-                    position="insideLeft"   // ✅ inside to avoid clipping
-                    offset={10}
-                    style={{ fill: "#667085", fontSize: 13 }}
-                  />
-                </YAxis>
-
-                {/* Tooltip */}
-                <ChartTooltip
-                  content={<ChartTooltipContent />}
-                  labelFormatter={(label, payload) => {
-                    if (payload && payload[0]) {
-                      const fullDate = payload[0].payload?.fullDate;
-                      if (fullDate) {
-                        return new Date(fullDate).toLocaleDateString("en-US", {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        });
-                      }
-                    }
-                    return label;
-                  }}
-                  formatter={(value) => [
-                    `${value}${currentPollutantOption.unit ? ` ${currentPollutantOption.unit}` : ""}`,
-                    currentPollutantOption.label,
-                  ]}
-                />
-
-                {/* Line */}
-                <Line
-                  type="monotone"
-                  dataKey="value"
-                  stroke={chartColor}
-                  strokeWidth={2}
-                  dot={{ fill: chartColor, strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, stroke: chartColor, strokeWidth: 2 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </ChartContainer>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

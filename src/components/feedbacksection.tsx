@@ -2,22 +2,26 @@
 
 import React, { useState } from 'react';
 import { Star, Send } from 'lucide-react';
+import { submitFeedback } from '@/lib/api';
 
 interface FeedbackData {
     rating: number;
     feedback: string;
     email: string;
+    name: string;
 }
 
-interface FeedbackSectionProps {
-    onSubmitFeedback?: (data: FeedbackData) => Promise<void> | void;
-}
+// interface FeedbackSectionProps {
+//     onSubmitFeedback?: (data: FeedbackData) => Promise<void> | void;
+// }
 
-const FeedbackSection: React.FC<FeedbackSectionProps> = ({ onSubmitFeedback }) => {
+const FeedbackSection = () => {
     const [rating, setRating] = useState<number>(0);
     const [hoveredRating, setHoveredRating] = useState<number>(0);
     const [feedback, setFeedback] = useState<string>('');
     const [email, setEmail] = useState<string>('');
+    const [name, setName] = useState<string>('');
+
     const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -35,15 +39,12 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({ onSubmitFeedback }) =
             const feedbackData: FeedbackData = {
                 rating,
                 feedback: feedback.trim(),
-                email: email.trim()
+                email: email.trim(),
+                name
             };
 
             try {
-                if (onSubmitFeedback) {
-                    await onSubmitFeedback(feedbackData);
-                } else {
-                    console.log('Feedback submitted:', feedbackData);
-                }
+              await submitFeedback(feedbackData)
                 setIsSubmitted(true);
                 setTimeout(() => {
                     setIsSubmitted(false);
@@ -61,14 +62,18 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({ onSubmitFeedback }) =
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ): void => {
-        const { name, value } = e.target;
-        if (name === 'feedback') {
-            setFeedback(value);
-        } else if (name === 'email') {
-            setEmail(value);
-        }
-    };
+      ): void => {
+          const { name: fieldName, value } = e.target;
+      
+          if (fieldName === 'feedback') {
+              setFeedback(value);
+          } else if (fieldName === 'email') {
+              setEmail(value);
+          } else if (fieldName === 'name') {
+              setName(value);
+          }
+      };
+      
 
     const getRatingText = (rating: number): string => {
         const ratingTexts: { [key: number]: string } = {
@@ -82,7 +87,7 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({ onSubmitFeedback }) =
     };
 
     return (
-        <div className="max-w-6xl mx-auto py-36">
+        <div className="max-w-6xl mx-auto pb-36">
 
             {/* Feedback Section */}
             <div className='' >
@@ -100,7 +105,37 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({ onSubmitFeedback }) =
                         </div>
                     </div>
                 ) : (
-                    <div className="max-w-xl mx-auto bg-white rounded-lg p-6 shadow-md space-y-10">
+                    <div className="max-w-xl mx-auto bg-white p-6 shadow-sm space-y-6">
+                         <div className="">
+                            <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
+                                Email
+                            </label>
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                value={email}
+                                onChange={handleInputChange}
+                                placeholder="your.email@example.com"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                        </div>
+
+                        <div className="">
+                            <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
+                                Name
+                            </label>
+                            <input
+                                id="name"
+                                name="name"
+                                type="text"
+                                value={name}
+                                onChange={handleInputChange}
+                                placeholder="John Doe"
+                                required
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                        </div>
                         <div className="mb-6">
                             <label className="block text-gray-700 font-medium mb-2">
                                 How would you rate our air quality service?
@@ -113,7 +148,7 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({ onSubmitFeedback }) =
                                         onClick={() => handleStarClick(star)}
                                         onMouseEnter={() => handleStarHover(star)}
                                         onMouseLeave={() => setHoveredRating(0)}
-                                        className="focus:outline-none transition-colors duration-200"
+                                        className="focus:outline-none transition-colors duration-200 flex justify-left"
                                         aria-label={`Rate ${star} stars`}
                                     >
                                         <Star
@@ -121,12 +156,12 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({ onSubmitFeedback }) =
                                             className={`${star <= (hoveredRating || rating)
                                                     ? 'text-yellow-400 fill-current'
                                                     : 'text-gray-300'
-                                                } hover:text-yellow-400`}
+                                                } hover:text-yellow-400 `}
                                         />
                                     </button>
                                 ))}
                             </div>
-                            <p className="text-center text-sm text-gray-500 mt-2">
+                            <p className="text-left text-sm text-gray-500 mt-2">
                                 {rating > 0 && (
                                     <span>
                                         {getRatingText(rating)}
@@ -155,20 +190,7 @@ const FeedbackSection: React.FC<FeedbackSectionProps> = ({ onSubmitFeedback }) =
                             </p>
                         </div>
 
-                        <div className="mb-8">
-                            <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
-                                Email (optional)
-                            </label>
-                            <input
-                                id="email"
-                                name="email"
-                                type="email"
-                                value={email}
-                                onChange={handleInputChange}
-                                placeholder="your.email@example.com"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                        </div>
+                       
 
                         <button
                             onClick={handleSubmit}
