@@ -1,8 +1,10 @@
 // lib/api.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "/api", //  proxies to the backend (set in next.config.js)
+  baseURL: "/api/v1", //  proxies to the backend (set in next.config.js)
   headers: {
     "Content-Type": "application/json",
   },
@@ -35,6 +37,10 @@ export interface Station {
 
 
 export interface HistoricalData {
+  pm25: number;
+  aqi: number;
+  timestamp: string | number | Date;
+  pm10: number;
   date: string;
   avg_aqi: number;
   avg_pm25: number;
@@ -54,12 +60,17 @@ export const getStations = async () => {
   return response.data;
 };
 
-export const getHistoricalData = async (sensorId: string, period=24) => {
+export const getHistoricalData = async (sensorId= '1', period=24) => {
   const response = await api.get(`/sensors/${sensorId}/readings/?range=${period}`);
   return response.data;
 };
 
-export const subscribeToAlerts = async (email: string) => {
-  const response = await api.post("/alerts/subscribe", { email });
+export const subscribeToAlerts = async (payload: any) => {
+  const response = await api.post("/alerts/subscribe",  payload );
+  return response.data;
+};
+
+export const submitFeedback = async (payload: any) => {
+  const response = await api.post("/feedback",  payload );
   return response.data;
 };

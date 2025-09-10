@@ -1,16 +1,17 @@
-"use client";
+"use client"
+
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Check } from "lucide-react";
 import dynamic from "next/dynamic";
-import TrendsChart from "@/components/trends-chart";
+// import TrendsChart from "@/components/trends-chart";
 import Navbar from "@/components/navbar";
 import EmailAlertSection from "@/components/email-alert-section";
 import FeedbackSection from "@/components/feedbacksection";
 import Footer from "@/components/footersection";
-import { FakeHistoricalData, FakeStation, getHistoricalData, getStations } from "@/lib/api";
+import { getHistoricalData, getStations } from "@/lib/api";
 import Legend from "./legend";
-import { HistoricalData } from "@/lib/api";
 import { Station } from "@/lib/api";
+import TrendsChart from "./trends-chart";
 
 
 // Dynamically import MapComponent with SSR disabled
@@ -32,33 +33,6 @@ const pollutantOptions: PollutantOption[] = [
   { value: "pm10", label: "PM 10", unit: "μg/m³" },
 ];
 
-// Generate sample historical data for the last 30 days
-function generateHistoricalData(
-  baseAqi: number,
-  basePm25: number,
-  basePm10: number
-): FakeHistoricalData[] {
-const data: FakeHistoricalData[] = [];
-  const today = new Date();
-
-  for (let i = 29; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(date.getDate() - i);
-
-    // Add some realistic variation to the data
-    const variation = (Math.random() - 0.5) * 0.3;
-    const seasonalTrend = Math.sin((i / 30) * Math.PI * 2) * 0.1;
-
-    data.push({
-      date: date.toISOString().split("T")[0],
-      aqi: Math.round(baseAqi * (1 + variation + seasonalTrend)),
-      pm25: Math.round(basePm25 * (1 + variation + seasonalTrend)),
-      pm10: Math.round(basePm10 * (1 + variation + seasonalTrend)),
-    });
-  }
-
-  return data;
-}
 
 
 function getPollutantValue(station: Station, pollutant: PollutantType): number {
@@ -131,33 +105,18 @@ function getPollutantLevel(value: number, pollutant: PollutantType): string {
 export default function Dashboard() {
 
   const [stations, setStations] = useState<Station[]>([]);
-  const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
   const [loading, setLoading] = useState(false);
   const [trendsStation, setTrendsStation] = useState<Station | null>(null);
   const [selectedStation, setSelectedStation] = useState<Station | null>(null);
   const [isTrendsDropdownOpen, setIsTrendsDropdownOpen] = useState(false);
 
-  const [selectedPollutant, setSelectedPollutant] =
-    useState<PollutantType>("aqi");
+  const [selectedPollutant, setSelectedPollutant] = useState<PollutantType>("aqi");
 
   // const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Effect #1: Fetch historical data once on mount
-  useEffect(() => {
-    const fetchHistoricalData = async () => {
-      try {
-        const historyData = await getHistoricalData("1", 24);
-        setHistoricalData(historyData);
-      } catch (err: any) {
-        console.log(err.message || "Failed to load historical data");
-      }
-    };
 
-    fetchHistoricalData();
-  }, []);
-
-  // Effect #2: Fetch stations on mount and every 60 seconds
+  // Effect #1: Fetch stations on mount and every 60 seconds
   useEffect(() => {
     const fetchStations = async () => {
       try {
@@ -253,7 +212,7 @@ export default function Dashboard() {
               Nairobi Air Quality Portal
             </h1>
             <div className="flex items-center text-sm text-gray-600 mt-1">
-              <span>Last updated: {new Date().toLocaleString()}</span>
+              {/* <span>Last updated: {new Date().toLocaleString()}</span> */}
               <span className="ml-4 px-2 py-0.5 text-green-700 bg-green-100 rounded-full text-xs">
                 Live Data
               </span>
@@ -358,7 +317,7 @@ export default function Dashboard() {
           </div>
 
           {/* Bottom Tables */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 my-32">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 my-24">
             {/* Cleanest Station */}
             <div>
               <h3 className="text-[#101828] font-semibold text-lg mb-2">
@@ -494,68 +453,13 @@ export default function Dashboard() {
           </div>
 
           {/* Trends Section */}
-          <section id="trends" className="py-20 mb-32">
-            {/* <div className="flex relative flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-              <div>
-                <h3 className="text-[#101828] font-semibold text-2xl mb-1">
-                  Air Quality Trends in Nairobi
-                </h3>
-              </div> */}
-              {/* <div>
-                <button
-                  onClick={() => setIsTrendsDropdownOpen(!isTrendsDropdownOpen)}
-                  className="flex items-center gap-2 px-4 py-2 bg-white border border-[#eaecf0] rounded-lg hover:bg-[#eaecf0] transition-colors w-full sm:w-auto justify-between"
-                >
-                  <span className="text-[#101828] font-medium truncate">
-                    {trendsStationn?.name}
-                  </span>
-                  <ChevronDown
-                    className={`w-4 h-4 text-[#667085] transition-transform flex-shrink-0 ${
-                      isTrendsDropdownOpen ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                {isTrendsDropdownOpen && (
-                  <div className="absolute my-16 top-full left-0 right-0 sm:right-0 sm:left-auto mt-1 bg-white border border-[#eaecf0] rounded-lg shadow-lg z-50 min-w-[200px] max-h-[300px] overflow-y-auto">
-                    {fakeStations.map((station) => (
-                      <button
-                        key={station.id}
-                        onClick={() => {
-                          setTrendsStationn(station);
-                          setTrendsStation(station);
-                          getHistoricalData(station.id, );
-                          setIsTrendsDropdownOpen(false);
-                        }}
-                        className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-[#eaecf0] transition-colors first:rounded-t-lg last:rounded-b-lg"
-                      >
-                        <span className="text-[#101828] font-medium truncate">
-                          {station.name}
-                        </span>
-                        {trendsStationn?.id === station.id && (
-                          <Check className="w-4 h-4 text-[#101828] flex-shrink-0 ml-2" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-              </div> */}
-            {/* </div> */}
+          <section id="trends" className="py-10">
             <TrendsChart
               stations={stations}
-              data={historicalData}
               pollutant={selectedPollutant}
               pollutantLabel={currentPollutantOption.label}
               pollutantUnit={currentPollutantOption.unit}
             /> 
-
-        {/* <TrendsCharttt
-              data={trendsStationn.historicalData}
-              pollutant={selectedPollutant}
-              stationName={trendsStationn.name}
-              pollutantLabel={currentPollutantOption.label}
-              pollutantUnit={currentPollutantOption.unit}
-            /> */}
           </section>
 
           {/* Trend stations is a station being looked at by the trends component */}
@@ -563,14 +467,17 @@ export default function Dashboard() {
           {/* Email Section */}
           <section
             id="alerts"
-            className="bg-[#2E7D32] mt-3 text-white h-[50vh] py-16 p-4 w-[100vw] -ml-[8px] sm:-ml-[calc((100vw-100%)/2)]"
+            className="py-36"
           >
-            {" "}
+            <div className="bg-[#2E7D32] text-white h-[55vh] py-20 p-4 w-[100vw] -ml-[8px] sm:-ml-[calc((100vw-100%)/2)]">
             <div className="max-w-4xl mx-auto h-full flex flex-col justify-center items-center space-y-6">
               <h2 className="text-3xl sm:text-4xl font-semibold text-center mb-6">
                 Get air quality alerts in your inbox
               </h2>
-              <EmailAlertSection />
+              <EmailAlertSection 
+                stations={stations}
+              />
+            </div>
             </div>
           </section>
           {/* Feedback Section */}

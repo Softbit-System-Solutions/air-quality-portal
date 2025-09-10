@@ -1,4 +1,4 @@
-// display site info and navigation links
+"use client";
 
 
 import React from 'react';
