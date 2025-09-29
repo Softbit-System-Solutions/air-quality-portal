@@ -8,7 +8,7 @@ import { submitFeedback } from "@/lib/api";
 interface FeedbackData {
   name: string;
   email: string;
-  feedback: string;
+  feedback: string; 
   rating: number;
 }
 
@@ -35,9 +35,15 @@ const FeedbackSection = () => {
 
     setIsLoading(true);
     try {
-      await submitFeedback({ ...data, rating });
-      setIsSubmitted(true);
+      //feedback → message
+      await submitFeedback({
+        name: data.name,
+        email: data.email,
+        message: data.feedback,
+        rating,
+      });
 
+      setIsSubmitted(true);
       setTimeout(() => {
         setIsSubmitted(false);
         reset();
@@ -55,8 +61,13 @@ const FeedbackSection = () => {
   };
 
   const getRatingText = (r: number) =>
-    ({ 1: "Poor", 2: "Fair", 3: "Good", 4: "Very Good", 5: "Excellent" }[r] ||
-    "");
+    ({
+      1: "Poor",
+      2: "Fair",
+      3: "Good",
+      4: "Very Good",
+      5: "Excellent",
+    }[r] || "");
 
   return (
     <div className="max-w-6xl mx-auto pb-36">
@@ -100,7 +111,9 @@ const FeedbackSection = () => {
                 errors.name ? "focus:ring-red-500" : "focus:ring-blue-500"
               }`}
             />
-            {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+            )}
           </div>
 
           {/* Email */}
@@ -125,7 +138,9 @@ const FeedbackSection = () => {
                 errors.email ? "focus:ring-red-500" : "focus:ring-blue-500"
               }`}
             />
-            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+            )}
           </div>
 
           {/* Rating */}
@@ -158,7 +173,9 @@ const FeedbackSection = () => {
               ))}
             </div>
             {errors.rating && (
-              <p className="text-red-500 text-sm mt-1">{errors.rating.message}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.rating.message}
+              </p>
             )}
             {rating > 0 && (
               <p className="text-left text-sm text-gray-500 mt-2">
@@ -185,20 +202,24 @@ const FeedbackSection = () => {
               maxLength={500}
             />
             {errors.feedback && (
-              <p className="text-red-500 text-sm mt-1">{errors.feedback.message}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.feedback.message}
+              </p>
             )}
           </div>
 
           {/* API Error */}
           {errors.root && (
-            <p className="text-red-500 text-sm text-center mt-2">{errors.root.message}</p>
+            <p className="text-red-500 text-sm text-center mt-2">
+              {errors.root.message}
+            </p>
           )}
 
           {/* Submit */}
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 flex items-center justify-center space-x-2 mt-4 transition-colors"
+            className="w-full bg-green-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 flex items-center justify-center space-x-2 mt-4 transition-colors"
           >
             {isLoading ? (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
