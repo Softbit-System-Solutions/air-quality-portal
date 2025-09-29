@@ -114,7 +114,7 @@ export default function EmailAlertSection({ stations }: EmailAlertComponentProps
       <DialogTrigger asChild>
         <Button
           size="lg"
-          className="bg-green-600 hover:bg-[#f59e0b] text-white font-bold px-10 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+          className="bg-green-600 hover:bg-[#7cf50b] text-white font-bold px-10 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
         >
           <Bell className="mr-2 h-5 w-5" /> Get Air Quality Alerts
         </Button>
