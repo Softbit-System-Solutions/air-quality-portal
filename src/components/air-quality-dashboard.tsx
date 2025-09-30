@@ -114,25 +114,45 @@ export default function Dashboard() {
 
   // const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-
+  const [lastUpdateTime, setLastUpdateTime] = useState<string | null>(null);
 
   // Effect #1: Fetch stations on mount and every 60 seconds
-  useEffect(() => {
-    const fetchStations = async () => {
-      try {
-        const stationsData = await getStations();
-        setStations(stationsData);
-        setTrendsStation(stationsData[0]);
-      } catch (err: any) {
-        console.log(err.message || "Failed to load stations");
-      } finally {
-        setLoading(false);
-      }
-    };
+useEffect(() => {
+  const fetchStations = async () => {
+    setLoading(true);
+    try {
+      const stationsData: Station[] = await getStations();
+      setStations(stationsData);
+      setTrendsStation(stationsData[0] ?? null);
 
-    // Initial fetch
-    fetchStations();
-  }, []);
+      // latest timestamp
+      const timestamps = stationsData
+        .map((s) => s.last_updated)
+        .filter((t): t is string => !!t); 
+
+      const latestTime =
+        timestamps.length > 0
+          ? Math.max(...timestamps.map((t) => new Date(t).getTime()))
+          : Date.now(); // fallback if no timestamps available
+
+      setLastUpdateTime(new Date(latestTime).toLocaleString());
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(err.message);
+      } else {
+        console.error("Failed to load stations");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchStations();
+
+  //refresh every 60 seconds
+  const interval = setInterval(fetchStations, 60000);
+  return () => clearInterval(interval);
+}, []);
 
   if (loading) return <p>Loading...</p>;
 
@@ -213,6 +233,9 @@ export default function Dashboard() {
             </h1>
             <div className="flex items-center text-sm text-gray-600 mt-1">
               {/* <span>Last updated: {new Date().toLocaleString()}</span> */}
+              {lastUpdateTime && (
+                <span>Last data received: {lastUpdateTime}</span>
+              )}
               <span className="ml-4 px-2 py-0.5 text-green-700 bg-green-100 rounded-full text-xs">
                 Live Data
               </span>
