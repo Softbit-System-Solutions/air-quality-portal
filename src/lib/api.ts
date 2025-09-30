@@ -57,7 +57,16 @@ export interface FakeHistoricalData {
 
 export const getStations = async () => {
   const response = await api.get("/stations");
-  return response.data;
+  const stations = response.data;
+
+  // Ensure it's an array before mapping
+  return Array.isArray(stations)
+    ? stations.map((station: any) => ({
+        ...station,
+        pm10: station.pm10 ? Number(station.pm10.toFixed(2)) : null,
+        pm25: station.pm25 ? Number(station.pm25.toFixed(2)) : null
+      }))
+    : stations;
 };
 
 export const getHistoricalData = async (sensorId= '1', period=24) => {
