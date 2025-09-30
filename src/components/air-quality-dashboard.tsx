@@ -233,9 +233,9 @@ useEffect(() => {
             </h1>
             <div className="flex items-center text-sm text-gray-600 mt-1">
               {/* <span>Last updated: {new Date().toLocaleString()}</span> */}
-              {lastUpdateTime && (
-                <span>Last data received: {lastUpdateTime}</span>
-              )}
+              {/* // {lastUpdateTime && (
+                // <span>Last data received: {lastUpdateTime}</span>
+              // )} */}
               <span className="ml-4 px-2 py-0.5 text-green-700 bg-green-100 rounded-full text-xs">
                 Live Data
               </span>

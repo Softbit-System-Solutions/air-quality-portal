@@ -16,12 +16,12 @@ import { Bell, X } from "lucide-react";
 import { Station, subscribeToAlerts } from "@/lib/api";
 
 const legendItems = [
-  { label: "Good", range: "0–50" },
-  { label: "Moderate", range: "51–100" },
-  { label: "Unhealthy for Sensitive Groups", range: "101–150" },
-  { label: "Unhealthy", range: "151–200" },
-  { label: "Very Unhealthy", range: "201–300" },
-  { label: "Hazardous", range: "301+" },
+  { label: "Good", range: "0–12" },
+  { label: "Moderate", range: "12.2–35.4" },
+  { label: "Unhealthy for Sensitive Groups", range: "35.5–55.4" },
+  { label: "Unhealthy", range: "55.5–150.4" },
+  { label: "Very Unhealthy", range: "150.5–250.4" },
+  { label: "Hazardous", range: "250.5–500.4" },
 ];
 
 interface EmailAlertComponentProps {
