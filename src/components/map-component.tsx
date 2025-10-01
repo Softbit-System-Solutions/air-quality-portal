@@ -71,7 +71,7 @@ export default function MapComponent({
         </div>
       `,
       className: "custom-marker",
-      iconSize: [32, 32],
+      iconSize: [27, 27],
       iconAnchor: [16, 16],
     });
   };
@@ -110,6 +110,9 @@ export default function MapComponent({
 
         marker.bindPopup(`
           <div class="p-2">
+           <div class="text-sm text-[#667085]">
+             Date
+            </div>
             <div class="font-semibold text-[#101828]">${station.name}</div>
             <div class="text-sm text-[#667085]">
               ${selectedPollutant.toUpperCase()}: ${value}${unit} - ${getPollutantLevel(value, selectedPollutant)}
@@ -132,7 +135,7 @@ export default function MapComponent({
       if (selectedStation) {
         leafletMapRef.current.setView(
           [selectedStation.lat, selectedStation.lng],
-          13,
+          12,
           { animate: true }
         );
       }

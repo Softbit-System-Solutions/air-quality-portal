@@ -147,7 +147,7 @@ export default function TrendsChart({
             if (selectedPollutant === "pm25") return item.pm25;
             return item.pm10;
           }),
-        borderColor: POLLUTANT_COLOR_MAP[selectedPollutant],
+        borderColor: 'blue',
         backgroundColor: POLLUTANT_COLOR_MAP[selectedPollutant] + "33",
         fill: true,
         tension: 0.3,
@@ -160,6 +160,7 @@ export default function TrendsChart({
         borderDash: [5, 5],
         pointRadius: 0, // hide points
         fill: false,
+        
       },
     ],
   };
@@ -181,15 +182,15 @@ export default function TrendsChart({
             borderColor: "red",
             borderWidth: 0.5,
             borderDash: [5, 5],
-            label: {
-              display: true,
-              position: "end",   // end of the line
-              color: "red",
-              backgroundColor: "transparent",
-              font: { weight: "bold", size: 12 },
-              xAdjust: 0,       // moves label slightly right
-              yAdjust: 0,
-            },
+            // label: {
+            //   display: true,
+            //   position: "end",   // end of the line
+            //   color: "red",
+            //   backgroundColor: "transparent",
+            //   font: { weight: "bold", size: 12 },
+            //   xAdjust: 0,       // moves label slightly right
+            //   yAdjust: 0,
+            // },
           },
         },
       },

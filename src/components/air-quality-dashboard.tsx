@@ -209,7 +209,7 @@ export default function Dashboard() {
 
           <div className="my-5">
             <h1 className="text-3xl font-bold text-gray-800">
-              Nairobi Air Quality Portal
+              Nairobi Air Quality
             </h1>
             <div className="flex items-center text-sm text-gray-600 mt-1">
               {/* <span>Last updated: {new Date().toLocaleString()}</span> */}
