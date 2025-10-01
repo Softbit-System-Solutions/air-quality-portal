@@ -126,16 +126,16 @@ useEffect(() => {
       setTrendsStation(stationsData[0] ?? null);
 
       // latest timestamp
-      const timestamps = stationsData
-        .map((s) => s.last_updated)
-        .filter((t): t is string => !!t); 
+      // const timestamps = stationsData
+      //   .map((s) => s.last_updated)
+      //   .filter((t): t is string => !!t); 
 
-      const latestTime =
-        timestamps.length > 0
-          ? Math.max(...timestamps.map((t) => new Date(t).getTime()))
-          : Date.now(); // fallback if no timestamps available
+      // const latestTime =
+      //   timestamps.length > 0
+      //     ? Math.max(...timestamps.map((t) => new Date(t).getTime()))
+      //     : Date.now(); // fallback if no timestamps available
 
-      setLastUpdateTime(new Date(latestTime).toLocaleString());
+      // setLastUpdateTime(new Date(latestTime).toLocaleString());
     } catch (err: unknown) {
       if (err instanceof Error) {
         console.error(err.message);
@@ -150,8 +150,8 @@ useEffect(() => {
   fetchStations();
 
   //refresh every 60 seconds
-  const interval = setInterval(fetchStations, 60000);
-  return () => clearInterval(interval);
+  // const interval = setInterval(fetchStations, 60000);
+  // return () => clearInterval(interval);
 }, []);
 
   if (loading) return <p>Loading...</p>;
