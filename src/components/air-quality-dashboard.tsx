@@ -154,7 +154,7 @@ useEffect(() => {
   // return () => clearInterval(interval);
 }, []);
 
-  if (loading) return <p>Loading...</p>;
+  // if (loading) return <p>Loading...</p>;
 
   // const [selectedPollutant, setSelectedPollutant] = useState<PollutantType>("aqi");
   // const [isDropdownOpen, setIsDropdownOpen] = useState(false);
