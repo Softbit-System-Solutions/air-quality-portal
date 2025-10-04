@@ -116,7 +116,7 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [lastUpdateTime, setLastUpdateTime] = useState<string | null>(null);
 
-  // Effect #1: Fetch stations on mount and every 60 seconds
+  // Effect #1: Fetch station
 useEffect(() => {
   const fetchStations = async () => {
     setLoading(true);
@@ -125,23 +125,21 @@ useEffect(() => {
       setStations(stationsData);
       setTrendsStation(stationsData[0] ?? null);
 
-      // latest timestamp
-      // const timestamps = stationsData
-      //   .map((s) => s.last_updated)
-      //   .filter((t): t is string => !!t); 
+      //timestamps from `time`
+      const timestamps = stationsData
+        .map((s) => s.time)
+        .filter((t): t is string => Boolean(t));
 
-      // const latestTime =
-      //   timestamps.length > 0
-      //     ? Math.max(...timestamps.map((t) => new Date(t).getTime()))
-      //     : Date.now(); // fallback if no timestamps available
-
-      // setLastUpdateTime(new Date(latestTime).toLocaleString());
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error(err.message);
+      if (timestamps.length > 0) {
+        const latestTimestamp = new Date(
+          Math.max(...timestamps.map((t) => new Date(t).getTime()))
+        );
+        setLastUpdateTime(latestTimestamp.toLocaleString());
       } else {
-        console.error("Failed to load stations");
+        setLastUpdateTime(null);
       }
+    } catch (err: unknown) {
+      console.error(err instanceof Error ? err.message : "Failed to load stations");
     } finally {
       setLoading(false);
     }
@@ -149,11 +147,8 @@ useEffect(() => {
 
   fetchStations();
 
-  //refresh every 60 seconds
-  // const interval = setInterval(fetchStations, 60000);
-  // return () => clearInterval(interval);
-}, []);
 
+}, []);
   // if (loading) return <p>Loading...</p>;
 
   // const [selectedPollutant, setSelectedPollutant] = useState<PollutantType>("aqi");
@@ -232,13 +227,13 @@ useEffect(() => {
               Nairobi Air Quality Portal
             </h1>
             <div className="flex items-center text-sm text-gray-600 mt-1">
-              {/* <span>Last updated: {new Date().toLocaleString()}</span> */}
-              {/* // {lastUpdateTime && (
-                // <span>Last data received: {lastUpdateTime}</span>
-              // )} */}
+                
               <span className="ml-4 px-2 py-0.5 text-green-700 bg-green-100 rounded-full text-xs">
                 Live Data
               </span>
+              {lastUpdateTime && (
+                    <span>: {lastUpdateTime}</span>
+                  )}
             </div>
           </div>
 
