@@ -228,12 +228,12 @@ useEffect(() => {
             </h1>
             <div className="flex items-center text-sm text-gray-600 mt-1">
                 
-              <span className="ml-4 px-2 py-0.5 text-green-700 bg-green-100 rounded-full text-xs">
-                Live Data
-              </span>
-              {lastUpdateTime && (
-                    <span>: {lastUpdateTime}</span>
-                  )}
+             {lastUpdateTime && (
+                  <div className="flex items-center text-sm text-green-700 mt-1">
+                    <span className="font-medium">Live Data:</span>
+                    <span className="ml-1">{lastUpdateTime}</span>
+                  </div>
+                )}
             </div>
           </div>
 
