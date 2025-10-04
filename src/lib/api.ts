@@ -33,6 +33,7 @@ export interface Station {
   lat: number;
   lng: number;
   sensorType?: string;
+  time?: string; 
 }
 
 
