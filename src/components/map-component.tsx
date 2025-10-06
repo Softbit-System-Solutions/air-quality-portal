@@ -5,16 +5,7 @@ import L, { divIcon } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Station } from "@/lib/api";
 
-// interface Station {
-//   id: string;
-//   name: string;
-//   aqi: number;
-//   pm25: number;
-//   pm10: number;
-//   lat: number;
-//   lng: number;
-//   type?: string;
-// }
+
 
 type PollutantType = "aqi" | "pm25" | "pm10";
 
@@ -108,22 +99,31 @@ export default function MapComponent({
         const value = getPollutantValue(station, selectedPollutant);
         const unit = selectedPollutant === "aqi" ? "" : "μg/m³";
 
-        marker.bindPopup(`
-          <div class="p-2">
-           <div class="text-sm text-[#667085]">
-             Date
-            </div>
-            <div class="font-semibold text-[#101828]">${station.name}</div>
-            <div class="text-sm text-[#667085]">
-              ${selectedPollutant.toUpperCase()}: ${value}${unit} - ${getPollutantLevel(value, selectedPollutant)}
-            </div>
-            <div class="mt-2 text-xs text-[#667085]">
-              <div>AQI: ${station.aqi}</div>
-              <div>PM2.5: ${station.pm25} μg/m³</div>
-              <div>PM10: ${station.pm10} μg/m³</div>
-            </div>
-          </div>
-        `);
+              marker.bindPopup(`
+                <div class="p-2">
+                  <div class="text-sm text-[#667085] mb-1">
+                    <span class="font-semibold text-[#101828]">${station.name}</span>
+                  </div>
+                  <div class="text-xs text-[#667085] mb-2">
+                   ${
+                      station.time
+                        ? new Date(station.time).toLocaleString()
+                        : "No data available"
+                    }
+                  </div>
+                  <div class="text-sm text-[#667085]">
+                    ${selectedPollutant.toUpperCase()}: ${value}${unit} - ${getPollutantLevel(
+                value,
+                selectedPollutant
+              )}
+                  </div>
+                  <div class="mt-2 text-xs text-[#667085]">
+                    <div>AQI: ${station.aqi}</div>
+                    <div>PM2.5: ${station.pm25} μg/m³</div>
+                    <div>PM10: ${station.pm10} μg/m³</div>
+                  </div>
+                </div>
+              `);
 
         marker.on("click", () => {
           onStationSelect(station);
