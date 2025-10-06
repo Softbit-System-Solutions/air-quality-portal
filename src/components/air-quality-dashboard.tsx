@@ -149,10 +149,7 @@ useEffect(() => {
 
 
 }, []);
-  // if (loading) return <p>Loading...</p>;
 
-  // const [selectedPollutant, setSelectedPollutant] = useState<PollutantType>("aqi");
-  // const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const currentPollutantOption = pollutantOptions.find(
     (option) => option.value === selectedPollutant
@@ -230,7 +227,7 @@ useEffect(() => {
                 
              {lastUpdateTime && (
                   <div className="flex items-center text-sm text-green-700 mt-1">
-                    <span className="font-medium">Live Data:</span>
+                    {/* <span className="font-medium">Live Data:</span> */}
                     <span className="ml-1">{lastUpdateTime}</span>
                   </div>
                 )}
