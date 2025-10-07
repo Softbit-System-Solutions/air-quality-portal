@@ -114,7 +114,16 @@ export default function Dashboard() {
 
   // const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentTime, setCurrentTime] = useState<string>("");
   // const [lastUpdateTime, setLastUpdateTime] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCurrentTime(new Date().toLocaleString());
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleString());
+    }, 60_000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Effect #1: Fetch station
 // Effect #1: Fetch stations on mount and every 60 seconds
@@ -207,13 +216,16 @@ export default function Dashboard() {
             <h1 className="text-3xl font-bold text-gray-800">
               Nairobi Air Quality
             </h1>
-            <div className="flex items-center text-sm text-gray-600 mt-1">
-              {/* <span>Last updated: {new Date().toLocaleString()}</span> */}
-              <span><span className="ml-4 px-2 py-0.5 text-green-700 bg-green-100 rounded-full text-xs">
-                Live Data
-              </span> {new Date().toLocaleString()}</span>
-              
-            </div>
+            {currentTime && (
+              <div className="flex items-center text-sm text-gray-600 mt-1">
+                <span>
+                  <span className="ml-4 px-2 py-0.5 text-green-700 bg-green-100 rounded-full text-xs">
+                    Live Data
+                  </span>{" "}
+                  {currentTime}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Map Container */}
