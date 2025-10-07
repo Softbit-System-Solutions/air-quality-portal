@@ -219,9 +219,9 @@ export default function Dashboard() {
             {currentTime && (
               <div className="flex items-center text-sm text-gray-600 mt-1">
                 <span>
-                  <span className="ml-4 px-2 py-0.5 text-green-700 bg-green-100 rounded-full text-xs">
+                  {/* <span className="ml-4 px-2 py-0.5 text-green-700 bg-green-100 rounded-full text-xs">
                     Live Data
-                  </span>{" "}
+                  </span>{" "} */}
                   {currentTime}
                 </span>
               </div>
