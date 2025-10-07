@@ -114,42 +114,26 @@ export default function Dashboard() {
 
   // const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [lastUpdateTime, setLastUpdateTime] = useState<string | null>(null);
+  // const [lastUpdateTime, setLastUpdateTime] = useState<string | null>(null);
 
   // Effect #1: Fetch station
-useEffect(() => {
-  const fetchStations = async () => {
-    setLoading(true);
-    try {
-      const stationsData: Station[] = await getStations();
-      setStations(stationsData);
-      setTrendsStation(stationsData[0] ?? null);
-
-      //timestamps from `time`
-      const timestamps = stationsData
-        .map((s) => s.time)
-        .filter((t): t is string => Boolean(t));
-
-      if (timestamps.length > 0) {
-        const latestTimestamp = new Date(
-          Math.max(...timestamps.map((t) => new Date(t).getTime()))
-        );
-        setLastUpdateTime(latestTimestamp.toLocaleString());
-      } else {
-        setLastUpdateTime(null);
+// Effect #1: Fetch stations on mount and every 60 seconds
+  useEffect(() => {
+    const fetchStations = async () => {
+      try {
+        const stationsData = await getStations();
+        setStations(stationsData);
+        setTrendsStation(stationsData[0]);
+      } catch (err: any) {
+        console.log(err.message || "Failed to load stations");
+      } finally {
+        setLoading(false);
       }
-    } catch (err: unknown) {
-      console.error(err instanceof Error ? err.message : "Failed to load stations");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchStations();
-
-
-}, []);
-
+    // Initial fetch
+    fetchStations();
+  }, []);
 
   const currentPollutantOption = pollutantOptions.find(
     (option) => option.value === selectedPollutant
@@ -224,13 +208,11 @@ useEffect(() => {
               Nairobi Air Quality
             </h1>
             <div className="flex items-center text-sm text-gray-600 mt-1">
-                
-             {lastUpdateTime && (
-                  <div className="flex items-center text-sm text-green-700 mt-1">
-                    {/* <span className="font-medium">Live Data:</span> */}
-                    <span className="ml-1">{lastUpdateTime}</span>
-                  </div>
-                )}
+              {/* <span>Last updated: {new Date().toLocaleString()}</span> */}
+              <span><span className="ml-4 px-2 py-0.5 text-green-700 bg-green-100 rounded-full text-xs">
+                Live Data
+              </span> {new Date().toLocaleString()}</span>
+              
             </div>
           </div>
 
