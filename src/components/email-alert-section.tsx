@@ -16,12 +16,12 @@ import { Bell, X } from "lucide-react";
 import { Station, subscribeToAlerts } from "@/lib/api";
 
 const legendItems = [
-  { label: "Good", range: "0–12" },
-  { label: "Moderate", range: "12.2–35.4" },
-  { label: "Unhealthy for Sensitive Groups", range: "35.5–55.4" },
-  { label: "Unhealthy", range: "55.5–150.4" },
-  { label: "Very Unhealthy", range: "150.5–250.4" },
-  { label: "Hazardous", range: "250.5–500.4" },
+  // { label: "Good", range: "0–50", color: "#00e400" },         // Green
+  // { label: "Moderate", range: "51–100", color: "#ffff00" },    // Yellow
+  { label: "Unhealthy for Sensitive Groups", range: "101–150", color: "#ff7e00" }, // Orange
+  { label: "Unhealthy", range: "151–200", color: "#ff0000" },  // Red
+  { label: "Very Unhealthy", range: "201–300", color: "#8f3f97" }, // Purple
+  { label: "Hazardous", range: "301+", color: "#7e0023" },     // Maroon,
 ];
 
 interface EmailAlertComponentProps {
@@ -58,7 +58,7 @@ export default function EmailAlertSection({ stations }: EmailAlertComponentProps
     },
   });
 
-  // 💡 Reset form when dialog closes
+  //  Reset form when dialog closes
   const handleDialogChange = (open: boolean) => {
     setIsOpen(open);
     if (!open) {
@@ -77,7 +77,7 @@ export default function EmailAlertSection({ stations }: EmailAlertComponentProps
       !selectedIds.includes(s.sensorId)
   );
 
-  // ➕ Add station
+  // Add station
   const addSensor = (sensor: Station) => {
     const newIds = [...selectedIds, sensor.sensorId];
     setSelectedIds(newIds);
@@ -86,7 +86,7 @@ export default function EmailAlertSection({ stations }: EmailAlertComponentProps
     setQuery("");
   };
 
-  // ❌ Remove station
+  //Remove station
   const removeSensor = (id: string) => {
     const newIds = selectedIds.filter((sid) => sid !== id);
     setSelectedIds(newIds);
@@ -94,7 +94,7 @@ export default function EmailAlertSection({ stations }: EmailAlertComponentProps
     trigger("sensorIds");
   };
 
-  // 🚀 Submit form
+  // Submit form
   const onSubmit = async (data: EmailAlertData) => {
     try {
       setServerError("");
