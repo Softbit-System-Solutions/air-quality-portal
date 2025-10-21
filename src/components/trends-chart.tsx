@@ -107,7 +107,9 @@ export default function TrendsChart({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const stationId = trendsStation?.id ?? "1";
+        const stationId = trendsStation?.sensorId;
+        if(!stationId) return;
+
         const historyData = await getHistoricalData(stationId, duration);
         setHistoricalData(Array.isArray(historyData) ? historyData : []);
       } catch (err) {
