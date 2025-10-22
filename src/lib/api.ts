@@ -26,13 +26,13 @@ export interface Station {
   lat: number;
   lng: number;
   sensorType?: string;
-  time?: string;
+  timeStamp?: string;
 }
 
 export interface HistoricalData {
   pm25: number;
   aqi: number;
-  timestamp: string | number | Date;
+  timeStamp: string | number | Date;
   pm10: number;
   date: string;
   avg_aqi: number;
@@ -81,7 +81,7 @@ export const getStations = async (): Promise<Station[]> => {
 
 // 🔹 Get historical readings for a given sensor
 export const getHistoricalData = async (sensorId: string, period = 24): Promise<HistoricalData[]> => {
-  const data = await fetchJSON(`${BASE_URL}/sensors/${sensorId}/readings/?range=${period}`);
+  const data = await fetchJSON(`${BASE_URL}/stations/${sensorId}/readings?range=${period}&direction=asc&sort=timeStamp`);
   return data.data;
 };
 

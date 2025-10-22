@@ -71,8 +71,8 @@ export default function MapComponent({
     if (mapRef.current && !leafletMapRef.current) {
       // Initialize the map
       leafletMapRef.current = L.map(mapRef.current).setView(
-        [-1.2921, 36.8219],
-        11
+        [-1.29999999, 36.89995],
+        12
       );
 
       // Add tile layer
@@ -106,8 +106,8 @@ export default function MapComponent({
                   </div>
                   <div class="text-xs text-[#667085] mb-2">
                    ${
-                      station.time
-                        ? new Date(station.time).toLocaleString()
+                      station.timeStamp
+                        ? new Date(station.timeStamp).toLocaleString()
                         : "No data available"
                     }
                   </div>

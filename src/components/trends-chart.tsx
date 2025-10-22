@@ -130,7 +130,7 @@ export default function TrendsChart({
     labels: historicalData
       .slice(-duration)
       .map((item) =>
-        new Date(item.timestamp).toLocaleString("en-US", {
+        new Date(item.timeStamp).toLocaleString("en-US", {
           month: "short",
           day: "numeric",
           hour: "2-digit",
