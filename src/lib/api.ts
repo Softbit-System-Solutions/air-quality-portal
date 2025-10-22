@@ -1,14 +1,7 @@
-// lib/api.ts
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import axios from "axios";
-
-const api = axios.create({
-  baseURL: "/api/v1", //  proxies to the backend (set in next.config.js)
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+// Base API URL for all requests
+const BASE_URL = "https://xp-backend.sytes.net/api/v1";
 
 export interface FakeStation {
   id: string;
@@ -33,9 +26,8 @@ export interface Station {
   lat: number;
   lng: number;
   sensorType?: string;
-  time?: string; 
+  time?: string;
 }
-
 
 export interface HistoricalData {
   pm25: number;
@@ -48,27 +40,36 @@ export interface HistoricalData {
   avg_pm10: number;
 }
 
-
 export interface FakeHistoricalData {
   date: string;
   aqi: number;
   pm25: number;
   pm10: number;
 }
-export const getStations = async () => {
-  const response = await fetch('https://161.97.134.211:4443/api/v1/stations', {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
+
+// 🔹 Common helper to handle fetch + JSON parsing + errors
+const fetchJSON = async (url: string, options: RequestInit = {}) => {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch stations: ${response.status} ${response.statusText}`);
+    const text = await response.text();
+    throw new Error(`Request failed: ${response.status} ${response.statusText} - ${text}`);
   }
 
-  const data = await response.json(); // 👈 parse the JSON response
-  const stations = data.data; // your backend likely wraps results inside "data"
+  return response.json();
+};
 
-  // Ensure it's an array before mapping
+// 🔹 Get all stations
+export const getStations = async (): Promise<Station[]> => {
+  const data = await fetchJSON(`${BASE_URL}/stations`);
+  const stations = data.data;
+
   return Array.isArray(stations)
     ? stations.map((station: any) => ({
         ...station,
@@ -78,18 +79,26 @@ export const getStations = async () => {
     : stations;
 };
 
-
-export const getHistoricalData = async (sensorId: string, period=24) => {
-  const response = await api.get(`/sensors/${sensorId}/readings/?range=${period}`);
-  return response.data.data;
+// 🔹 Get historical readings for a given sensor
+export const getHistoricalData = async (sensorId: string, period = 24): Promise<HistoricalData[]> => {
+  const data = await fetchJSON(`${BASE_URL}/sensors/${sensorId}/readings/?range=${period}`);
+  return data.data;
 };
 
-export const subscribeToAlerts = async (payload: any) => {
-  const response = await api.post("/alerts/subscribe",  payload );
-  return response.data.data;
+// 🔹 Subscribe to alerts
+export const subscribeToAlerts = async (payload: any): Promise<any> => {
+  const data = await fetchJSON(`${BASE_URL}/alerts/users`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  return data.data;
 };
 
-export const submitFeedback = async (payload: any) => {
-  const response = await api.post("/feedback",  payload );
-  return response.data.data;
+// 🔹 Submit feedback
+export const submitFeedback = async (payload: any): Promise<any> => {
+  const data = await fetchJSON(`${BASE_URL}/feedback`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  return data.data;
 };

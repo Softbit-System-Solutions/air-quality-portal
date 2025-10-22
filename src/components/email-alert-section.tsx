@@ -16,13 +16,19 @@ import { Bell, X } from "lucide-react";
 import { Station, subscribeToAlerts } from "@/lib/api";
 
 const legendItems = [
-  // { label: "Good", range: "0–50", color: "#00e400" },         // Green
-  // { label: "Moderate", range: "51–100", color: "#ffff00" },    // Yellow
-  { label: "Unhealthy for Sensitive Groups", range: "101–150", color: "#ff7e00" }, // Orange
-  { label: "Unhealthy", range: "151–200", color: "#ff0000" },  // Red
-  { label: "Very Unhealthy", range: "201–300", color: "#8f3f97" }, // Purple
-  { label: "Hazardous", range: "301+", color: "#7e0023" },     // Maroon,
+  { label: "Unhealthy for Sensitive Groups", range: "101–150", color: "#ff7e00" },
+  { label: "Unhealthy", range: "151–200", color: "#ff0000" },
+  { label: "Very Unhealthy", range: "201–300", color: "#8f3f97" },
+  { label: "Hazardous", range: "301+", color: "#7e0023" },
 ];
+
+// 🧠 AQI mapping by alert level
+const AQI_LEVELS: Record<string, number> = {
+  "Unhealthy for Sensitive Groups": 101,
+  "Unhealthy": 151,
+  "Very Unhealthy": 201,
+  "Hazardous": 301,
+};
 
 interface EmailAlertComponentProps {
   stations: Station[];
@@ -58,11 +64,9 @@ export default function EmailAlertSection({ stations }: EmailAlertComponentProps
     },
   });
 
-  //  Reset form when dialog closes
   const handleDialogChange = (open: boolean) => {
     setIsOpen(open);
     if (!open) {
-      // reset everything when closing
       reset();
       setSelectedIds([]);
       setQuery("");
@@ -70,14 +74,12 @@ export default function EmailAlertSection({ stations }: EmailAlertComponentProps
     }
   };
 
-  // 🔍 Filter stations
   const filteredOptions = stations.filter(
     (s) =>
       s.name.toLowerCase().includes(query.toLowerCase()) &&
       !selectedIds.includes(s.sensorId)
   );
 
-  // Add station
   const addSensor = (sensor: Station) => {
     const newIds = [...selectedIds, sensor.sensorId];
     setSelectedIds(newIds);
@@ -86,7 +88,6 @@ export default function EmailAlertSection({ stations }: EmailAlertComponentProps
     setQuery("");
   };
 
-  //Remove station
   const removeSensor = (id: string) => {
     const newIds = selectedIds.filter((sid) => sid !== id);
     setSelectedIds(newIds);
@@ -94,15 +95,25 @@ export default function EmailAlertSection({ stations }: EmailAlertComponentProps
     trigger("sensorIds");
   };
 
-  // Submit form
+  // 📨 Submit form
   const onSubmit = async (data: EmailAlertData) => {
     try {
       setServerError("");
-      console.log("Submitting:", data);
-      await subscribeToAlerts(data);
+
+      // 🧩 Derive AQI based on alert level
+      const aqiValue = AQI_LEVELS[data.alertLevel] || 0;
+
+      const payload = {
+        ...data,
+        aqi: aqiValue, // 👈 include AQI in the payload
+      };
+
+      console.log("Submitting:", payload);
+
+      await subscribeToAlerts(payload);
       reset();
       setSelectedIds([]);
-      setIsOpen(false); // close dialog
+      setIsOpen(false);
     } catch (err) {
       console.error(err);
       setServerError("Something went wrong. Try again.");
@@ -126,7 +137,6 @@ export default function EmailAlertSection({ stations }: EmailAlertComponentProps
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Server Error */}
           {serverError && (
             <div className="bg-red-100 text-red-700 px-4 py-2 rounded-md text-sm">
               {serverError}

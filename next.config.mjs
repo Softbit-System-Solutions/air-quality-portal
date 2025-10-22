@@ -15,7 +15,7 @@ const nextConfig = {
     return [
       {
         source: '/api/v1/:path*',
-        destination: 'https://161.97.134.211:4443/api/v1/:path*',
+        destination: 'https://xp-backend.sytes.net/api/v1/:path*',
       },
     ]
   },
