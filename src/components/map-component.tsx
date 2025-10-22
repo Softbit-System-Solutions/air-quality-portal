@@ -71,7 +71,7 @@ export default function MapComponent({
     if (mapRef.current && !leafletMapRef.current) {
       // Initialize the map
       leafletMapRef.current = L.map(mapRef.current).setView(
-        [-1.29999999, 36.89995],
+        [-1.2921, 36.8719], 
         12
       );
 

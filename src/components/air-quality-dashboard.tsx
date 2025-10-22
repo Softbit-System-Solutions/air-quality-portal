@@ -230,7 +230,7 @@ export default function Dashboard() {
 
           {/* Map Container */}
           <div className="relative rounded-lg overflow-hidden bg-gray-100">
-            <div className="h-[400px] sm:h-[500px] lg:h-[650px]">
+            <div className="h-[400px] sm:h-[500px] lg:h-[770px]">
               <MapComponent
                 stations={stations}
                 selectedStation={selectedStation}
