@@ -76,10 +76,10 @@ const POLLUTANT_COLOR_MAP: Record<PollutantType, string> = {
 };
 
 // Example threshold values
-const THRESHOLD_MAP: Record<PollutantType, number> = {
-  aqi: 100,
-  pm25: 25,
-  pm10: 50,
+const THRESHOLD_MAP: Record<PollutantType, number | string> = {
+  aqi: '',
+  pm25: 15,
+  pm10: 45,
 };
 
 const pollutantOptions: PollutantOption[] = [
@@ -142,28 +142,30 @@ export default function TrendsChart({
         label: `${currentPollutantOption.label}${
           currentPollutantOption.unit ? ` (${currentPollutantOption.unit})` : ""
         }`,
-        data: historicalData
-          .slice(-duration)
-          .map((item) => {
-            if (selectedPollutant === "aqi") return item.aqi;
-            if (selectedPollutant === "pm25") return item.pm25;
-            return item.pm10;
-          }),
-        borderColor: 'blue',
+        data: historicalData.slice(-duration).map((item) => {
+          if (selectedPollutant === "aqi") return item.aqi;
+          if (selectedPollutant === "pm25") return item.pm25;
+          return item.pm10;
+        }),
+        borderColor: "blue",
         backgroundColor: POLLUTANT_COLOR_MAP[selectedPollutant] + "33",
         fill: true,
         tension: 0.3,
       },
-      {
-        label: `Threshold (${thresholdValue})`,
-        data: Array(historicalData.slice(-duration).length).fill(thresholdValue),
-        borderColor: "red",
-        borderWidth: 1,
-        borderDash: [5, 5],
-        pointRadius: 0, // hide points
-        fill: false,
-        
-      },
+      // ✅ Only show threshold dataset if NOT AQI
+      ...(selectedPollutant !== "aqi"
+        ? [
+            {
+              label: `WHO (${thresholdValue} μg/m³)`,
+              data: Array(historicalData.slice(-duration).length).fill(thresholdValue),
+              borderColor: "red",
+              borderWidth: 1,
+              borderDash: [5, 5],
+              pointRadius: 0, // hide points
+              fill: false,
+            },
+          ]
+        : []),
     ],
   };
   

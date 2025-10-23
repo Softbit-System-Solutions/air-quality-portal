@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Check } from "lucide-react";
@@ -12,7 +12,6 @@ import { getHistoricalData, getStations } from "@/lib/api";
 import Legend from "./legend";
 import { Station } from "@/lib/api";
 import TrendsChart from "./trends-chart";
-
 
 // Dynamically import MapComponent with SSR disabled
 const MapComponent = dynamic(() => import("./map-component"), {
@@ -32,8 +31,6 @@ const pollutantOptions: PollutantOption[] = [
   { value: "pm25", label: "PM 2.5", unit: "μg/m³" },
   { value: "pm10", label: "PM 10", unit: "μg/m³" },
 ];
-
-
 
 function getPollutantValue(station: Station, pollutant: PollutantType): number {
   switch (pollutant) {
@@ -103,14 +100,14 @@ function getPollutantLevel(value: number, pollutant: PollutantType): string {
 }
 
 export default function Dashboard() {
-
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(false);
   const [trendsStation, setTrendsStation] = useState<Station | null>(null);
   const [selectedStation, setSelectedStation] = useState<Station | null>(null);
   const [isTrendsDropdownOpen, setIsTrendsDropdownOpen] = useState(false);
 
-  const [selectedPollutant, setSelectedPollutant] = useState<PollutantType>("aqi");
+  const [selectedPollutant, setSelectedPollutant] =
+    useState<PollutantType>("aqi");
 
   // const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -118,15 +115,24 @@ export default function Dashboard() {
   // const [lastUpdateTime, setLastUpdateTime] = useState<string | null>(null);
 
   useEffect(() => {
-    setCurrentTime(new Date().toLocaleString());
-    const interval = setInterval(() => {
-      setCurrentTime(new Date().toLocaleString());
-    }, 60_000);
+    const updateTime = () => {
+      const now = new Date();
+      const formatted = now.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      setCurrentTime(formatted);
+    };
+
+    updateTime(); // set immediately on mount
+    const interval = setInterval(updateTime, 1000); // update every second
+
     return () => clearInterval(interval);
   }, []);
 
   // Effect #1: Fetch station
-// Effect #1: Fetch stations on mount and every 60 seconds
+  // Effect #1: Fetch stations on mount and every 60 seconds
   useEffect(() => {
     const fetchStations = async () => {
       try {
@@ -161,68 +167,14 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="p-4 sm:p-6">
         <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          {/* <div className="mb-6">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
-              <span className="text-[#101828] font-medium">Pollutants</span>
-              <div className="relative">
-                <button
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center gap-2 px-3 py-1 text-[#101828] hover:bg-[#eaecf0] rounded-md transition-colors w-full sm:w-auto justify-between sm:justify-start"
-                >
-                  <span className="sm:hidden">Select Pollutant</span>
-                  <ChevronDown
-                    className={`w-4 h-4 text-[#667085] transition-transform ${
-                      isDropdownOpen ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-
-                {isDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 sm:right-auto mt-1 mb-3 bg-white border border-[#eaecf0] rounded-lg shadow-lg z-50 min-w-[120px]">
-                    {pollutantOptions.map((option) => (
-                      <button
-                        key={option.value}
-                        onClick={() => {
-                          setSelectedPollutant(option.value);
-                          setIsDropdownOpen(false);
-                        }}
-                        className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-[#eaecf0] transition-colors first:rounded-t-lg last:rounded-b-lg"
-                      >
-                        <span className="text-[#101828] font-medium">
-                          {option.label}
-                        </span>
-                        {selectedPollutant === option.value && (
-                          <Check className="w-4 h-4 text-[#101828]" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="text-[#101828] font-medium text-lg sm:text-xl">
-              {currentPollutantOption.label}
-              {currentPollutantOption.unit && (
-                <span className="text-[#667085] font-normal ml-1 text-base">
-                  ({currentPollutantOption.unit})
-                </span>
-              )}
-            </div>
-          </div> */}
-
-
           <div className="my-5">
             <h1 className="text-3xl font-bold text-gray-800">
               Nairobi Air Quality
             </h1>
             {currentTime && (
               <div className="flex items-center text-sm text-gray-600 mt-1">
-                <span>
-                  {/* <span className="ml-4 px-2 py-0.5 text-green-700 bg-green-100 rounded-full text-xs">
-                    Live Data
-                  </span>{" "} */}
-                  {currentTime}
+                <span className="font-medium text-green-700">
+                  {currentTime} <span className="text-gray-500">•</span>
                 </span>
               </div>
             )}
@@ -468,29 +420,24 @@ export default function Dashboard() {
               pollutant={selectedPollutant}
               pollutantLabel={currentPollutantOption.label}
               pollutantUnit={currentPollutantOption.unit}
-            /> 
+            />
           </section>
 
           {/* Trend stations is a station being looked at by the trends component */}
 
           {/* Email Section */}
-          <section
-            id="alerts"
-            className="py-36"
-          >
+          <section id="alerts" className="py-36">
             <div className="bg-[#2E7D32] text-white h-[55vh] py-20 p-4 w-[100vw] -ml-[8px] sm:-ml-[calc((100vw-100%)/2)]">
-            <div className="max-w-4xl mx-auto h-full flex flex-col justify-center items-center space-y-6">
-              <h2 className="text-3xl sm:text-4xl font-semibold text-center mb-6">
-                Get air quality alerts in your inbox
-              </h2>
-              <EmailAlertSection 
-                stations={stations}
-              />
-            </div>
+              <div className="max-w-4xl mx-auto h-full flex flex-col justify-center items-center space-y-6">
+                <h2 className="text-3xl sm:text-4xl font-semibold text-center mb-6">
+                  Get air quality alerts in your inbox
+                </h2>
+                <EmailAlertSection stations={stations} />
+              </div>
             </div>
           </section>
           {/* Feedback Section */}
-          <section id='feedback'>
+          <section id="feedback">
             <FeedbackSection />
           </section>
           {/* Footer  Section */}
