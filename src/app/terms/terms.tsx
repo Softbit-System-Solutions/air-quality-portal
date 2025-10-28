@@ -50,6 +50,36 @@ const TermsOfService = () => {
         For questions regarding these Terms, please contact the Nairobi County Department of Environment 
         via email at <strong>environment@nairobi.go.ke</strong>.
       </p>
+
+      <h2 className="text-xl font-semibold mt-8 mb-2">7. Intellectual Property and Data Use
+         </h2>
+      <p>
+        Air quality data may be used for educational, research, and public information purposes, provided that appropriate attribution is given to the Nairobi Air Quality Portal.  
+          Commercial use, redistribution, or API integration requires prior written approval from the County Government.
+      </p>
+
+      <h2 className="text-xl font-semibold mt-8 mb-2"> 8. Limitation of Liability</h2>
+      <p>
+        The County Government of Nairobi, its employees, and partners shall not be liable for any direct, indirect, incidental, or consequential damages arising from the use or inability to use the Portal or its data.  
+        Users rely on the data at their own discretion and risk.
+      </p>
+
+      <h2 className="text-xl font-semibold mt-8 mb-2"> 9. Privacy</h2>
+      <p>
+        Any personal information collected through the Portal (such as feedback forms or account registration) will be handled in accordance with the Kenya Data Protection Act, 2019. 
+      </p>
+
+      <h2 className="text-xl font-semibold mt-8 mb-2">10. Governing Law</h2>
+      <p>
+       These Terms are governed by and construed in accordance with the laws of Kenya.  
+        Any disputes arising from or related to the use of this Portal shall be subject to the exclusive jurisdiction of the courts of Kenya.
+      </p>
+
+      <h2 className="text-xl font-semibold mt-8 mb-2">11. Effective Date</h2>
+      <p>
+       These Terms of Service are effective as of 2025/11/05.
+      </p>
+
     </div>
   );
 };
