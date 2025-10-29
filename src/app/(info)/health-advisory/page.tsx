@@ -1,9 +1,12 @@
 "use client";
 
+import PageLayout from "../PageLayout";
+
 export default function HealthAdvisoryPage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-16 px-6 lg:px-24">
-      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-2xl p-10">
+    <PageLayout title="Health Advisory">
+          <div className="min-h-screen py-4 lg:px-24">
+            <div className="max-w-4xl mx-auto bg-white p-5">
         <h1 className="text-3xl font-bold text-green-700 mb-6">
           Health Advisory on Air Quality
         </h1>
@@ -21,5 +24,6 @@ export default function HealthAdvisoryPage() {
         </ul>
       </div>
     </div>
+    </ PageLayout>
   );
 }

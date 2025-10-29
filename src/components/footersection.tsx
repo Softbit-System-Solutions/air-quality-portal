@@ -27,12 +27,12 @@ const Footer: React.FC<FooterProps> = ({ className = '' }) => {
     { name: 'Contact Us', href: '#feedback' },
   ];
 
-  // const resources = [
-  //   { name: 'Health Advisory', href: '/health-advisory' },
-  //   { name: 'Data Methodology', href: '/methodology' },
-  //   { name: 'Research Publications', href: '/research' },
-  //   { name: 'Educational Materials', href: '/education' },
-  // ];
+  const resources = [
+    { name: 'Health Advisory', href: '/health-advisory' },
+    { name: 'Data Methodology', href: '/methodology' },
+    { name: 'Research Publications', href: '/research' },
+    { name: 'Educational Materials', href: '/education' },
+  ];
 
   const govLinks = [
     { name: 'Ministry of Health', href: 'https://www.health.go.ke/', external: true },
@@ -52,11 +52,10 @@ const Footer: React.FC<FooterProps> = ({ className = '' }) => {
     <footer className={`bg-gray-800 text-white ${className}`}>
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* 3-column grid for visual balance */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           
           {/* Organization Info */}
-          <div>
+          <div className="col-span-1 lg:col-span-1">
             <div className="flex items-center space-x-3 mb-4">
               {/* <div className="w-12 h-12 flex items-center justify-center">
                 <img src="/nccg_logo.png" alt="Nairobi County Government" className="h-20 w-20" />
@@ -66,26 +65,25 @@ const Footer: React.FC<FooterProps> = ({ className = '' }) => {
                 <p className="text-sm text-gray-400">County Government of Nairobi</p>
               </div>
             </div>
-            <p className="text-gray-300 text-sm mb-4 leading-relaxed">
-              Real-time air quality monitoring across Nairobi to protect public health and environment 
-              through accurate data, research, and community engagement.
+            <p className="text-gray-300 text-sm mb-4">
+              Real-time air quality monitoring across Nairobi to protect public health and environment through accurate data, research, and community engagement.
             </p>
             
             {/* Contact Info */}
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center space-x-2">
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2 text-sm">
                 <MapPin size={16} className="text-green-400" />
                 <span>City Hall, Nairobi, Kenya</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 text-sm">
                 <Phone size={16} className="text-green-400" />
                 <span>+254 20 222 4126</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 text-sm">
                 <Mail size={16} className="text-green-400" />
                 <span>environment@nairobi.go.ke</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 text-sm">
                 <Clock size={16} className="text-green-400" />
                 <span>24/7 Real-time Monitoring</span>
               </div>
@@ -93,26 +91,24 @@ const Footer: React.FC<FooterProps> = ({ className = '' }) => {
           </div>
 
           {/* Quick Links */}
-          <div className="flex flex-col justify-between">
-            <div>
-              <h4 className="text-lg font-semibold mb-4 text-green-400">Quick Links</h4>
-              <ul className="space-y-2 mb-6">
-                {quickLinks.map((link, index) => (
-                  <li key={index}>
-                    <a 
-                      href={link.href}
-                      className="text-gray-300 hover:text-white text-sm transition-colors duration-200"
-                    >
-                      {link.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <div>
+            <h4 className="text-lg font-semibold mb-4 text-green-400">Quick Links</h4>
+            <ul className="space-y-2">
+              {quickLinks.map((link, index) => (
+                <li key={index}>
+                  <a 
+                    href={link.href}
+                    className="text-gray-300 hover:text-white text-sm transition-colors duration-200"
+                  >
+                    {link.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Resources (commented out but preserved) */}
-          {/* <div>
+          {/* Resources */}
+          <div>
             <h4 className="text-lg font-semibold mb-4 text-green-400">Resources</h4>
             <ul className="space-y-2">
               {resources.map((resource, index) => (
@@ -126,7 +122,7 @@ const Footer: React.FC<FooterProps> = ({ className = '' }) => {
                 </li>
               ))}
             </ul>
-          </div> */}
+          </div>
 
           {/* Government Links */}
           <div className="flex flex-col justify-between">
@@ -152,50 +148,54 @@ const Footer: React.FC<FooterProps> = ({ className = '' }) => {
         </div>
 
         {/* Social Media & Legal */}
-        <div className="mt-10 pt-6 border-t border-gray-700 flex flex-col md:flex-row justify-between items-center gap-4">
-          
-          {/* Social Media */}
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-400">Follow us:</span>
-            {socialLinks.map((social, index) => (
-              <a
-                key={index}
-                href={social.href}
-                className={`text-gray-400 ${social.color} transition-colors duration-200`}
-                aria-label={social.name}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <social.icon size={20} />
-              </a>
-            ))}
-          </div>
+        <div className="mt-8 pt-8 border-t border-gray-700">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            
+            {/* Social Media */}
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-400">Follow us:</span>
+              {socialLinks.map((social, index) => (
+                <a
+                  key={index}
+                  href={social.href}
+                  className={`text-gray-400 ${social.color} transition-colors duration-200`}
+                  aria-label={social.name}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <social.icon size={20} />
+                </a>
+              ))}
+            </div>
 
-          {/* Legal Links */}
-          <div className="flex items-center space-x-4 text-xs text-gray-400">
-            <a href="/terms" className="hover:text-white transition-colors">
-              Terms of Service
-            </a>
-            <span>|</span>
-            <a href="/policy" className="hover:text-white transition-colors">
-              Privacy Policy
-            </a>
-            <span>|</span>
-            {/* <a href="/accessibility" className="hover:text-white transition-colors">
-              Accessibility
-            </a> */}
+            {/* Legal Links */}
+            <div className="flex items-center space-x-4 text-xs text-gray-400">
+              <a href="/terms" className="hover:text-white transition-colors">
+                Terms of Service
+              </a>
+              <span>|</span>
+              <a href="/policy" className="hover:text-white transition-colors">
+                Privacy Policy
+              </a>
+              <span>|</span>
+              {/* <a href="/accessibility" className="hover:text-white transition-colors">
+                Accessibility
+              </a> */}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Bottom Bar */}
       <div className="bg-gray-900 py-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
-          <div className="text-sm text-gray-400">
-            &copy; {new Date().getFullYear()} Nairobi County Government - Air Quality Portal. All rights reserved.
-          </div>
-          <div className="text-xs text-gray-400">
-            Committed to Clean Air for All Nairobians
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
+            <div className="text-sm text-gray-400">
+              &copy; {new Date().getFullYear()} Nairobi County Government - Air Quality Portal. All rights reserved.
+            </div>
+            <div className="flex items-center space-x-4 text-xs text-gray-400">
+              <span>Committed to Clean Air for All Nairobians</span>
+            </div>
           </div>
         </div>
       </div>

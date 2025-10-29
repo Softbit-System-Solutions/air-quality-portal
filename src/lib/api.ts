@@ -94,6 +94,15 @@ export const subscribeToAlerts = async (payload: any): Promise<any> => {
   return data.data;
 };
 
+// 🔹 unSubscribe to alerts
+export const unsubscribeFromAlerts = async (id: string): Promise<any> => {
+  console.log('I am being called')
+  const data = await fetchJSON(`${BASE_URL}/alerts/users/${id}/unsubscribe`, {
+    method: "POST",
+  });
+  return data.data;
+};
+
 // 🔹 Submit feedback
 export const submitFeedback = async (payload: any): Promise<any> => {
   const data = await fetchJSON(`${BASE_URL}/feedback`, {
