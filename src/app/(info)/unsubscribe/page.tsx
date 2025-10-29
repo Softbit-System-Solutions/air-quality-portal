@@ -1,21 +1,21 @@
+"use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import PageLayout from "../PageLayout";
-import { unsubscribeFromAlerts } from "../../../lib/api"
+import { unsubscribeFromAlerts } from "../../../lib/api";
 
-export default function UnsubscribePage() {
+function UnsubscribeContent() {
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
 
-
   useEffect(() => {
     if (!id) return;
-    console.log(id)
+
     const unsubscribe = async () => {
       try {
-        await unsubscribeFromAlerts(id as string);
+        await unsubscribeFromAlerts(id);
         setStatus("success");
       } catch (error) {
         console.error(error);
@@ -24,7 +24,7 @@ export default function UnsubscribePage() {
     };
 
     unsubscribe();
-  }, []);
+  }, [id]);
 
   return (
     <PageLayout title="Unsubscribe from Alerts">
@@ -42,5 +42,13 @@ export default function UnsubscribePage() {
         </p>
       )}
     </PageLayout>
+  );
+}
+
+export default function UnsubscribePage() {
+  return (
+    <Suspense fallback={<p className="text-center text-gray-600">Loading...</p>}>
+      <UnsubscribeContent />
+    </Suspense>
   );
 }
