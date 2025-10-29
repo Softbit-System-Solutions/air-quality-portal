@@ -104,32 +104,13 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [trendsStation, setTrendsStation] = useState<Station | null>(null);
   const [selectedStation, setSelectedStation] = useState<Station | null>(null);
-  const [isTrendsDropdownOpen, setIsTrendsDropdownOpen] = useState(false);
 
   const [selectedPollutant, setSelectedPollutant] =
     useState<PollutantType>("aqi");
 
   // const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentTime, setCurrentTime] = useState<string>("");
-  // const [lastUpdateTime, setLastUpdateTime] = useState<string | null>(null);
 
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const formatted = now.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
-      setCurrentTime(formatted);
-    };
-
-    updateTime(); // set immediately on mount
-    const interval = setInterval(updateTime, 1000); // update every second
-
-    return () => clearInterval(interval);
-  }, []);
 
   // Effect #1: Fetch station
   // Effect #1: Fetch stations on mount and every 60 seconds
@@ -161,6 +142,7 @@ export default function Dashboard() {
 
   return (
     <div className="bg-[#ffffff] min-h-screen">
+
       {/* Navbar */}
       <Navbar />
 
@@ -171,13 +153,7 @@ export default function Dashboard() {
             <h1 className="text-3xl font-bold text-gray-800">
               Nairobi Air Quality
             </h1>
-            {currentTime && (
-              <div className="flex items-center text-sm text-gray-600 mt-1">
-                <span className="font-medium text-green-700">
-                  {currentTime} <span className="text-gray-500">•</span>
-                </span>
-              </div>
-            )}
+    
           </div>
 
           {/* Map Container */}

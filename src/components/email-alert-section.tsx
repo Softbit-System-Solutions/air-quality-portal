@@ -14,9 +14,14 @@ import { Label } from "@/ui/label";
 import { Input } from "@/ui/input";
 import { Bell, X } from "lucide-react";
 import { Station, subscribeToAlerts } from "@/lib/api";
+import { toast } from "sonner";
 
 const legendItems = [
-  { label: "Unhealthy for Sensitive Groups", range: "101–150", color: "#ff7e00" },
+  {
+    label: "Unhealthy for Sensitive Groups",
+    range: "101–150",
+    color: "#ff7e00",
+  },
   { label: "Unhealthy", range: "151–200", color: "#ff0000" },
   { label: "Very Unhealthy", range: "201–300", color: "#8f3f97" },
   { label: "Hazardous", range: "301+", color: "#7e0023" },
@@ -25,9 +30,9 @@ const legendItems = [
 // 🧠 AQI mapping by alert level
 const AQI_LEVELS: Record<string, number> = {
   "Unhealthy for Sensitive Groups": 101,
-  "Unhealthy": 151,
+  Unhealthy: 151,
   "Very Unhealthy": 201,
-  "Hazardous": 301,
+  Hazardous: 301,
 };
 
 interface EmailAlertComponentProps {
@@ -41,7 +46,9 @@ interface EmailAlertData {
   alertLevel: string;
 }
 
-export default function EmailAlertSection({ stations }: EmailAlertComponentProps) {
+export default function EmailAlertSection({
+  stations,
+}: EmailAlertComponentProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -111,165 +118,179 @@ export default function EmailAlertSection({ stations }: EmailAlertComponentProps
       console.log("Submitting:", payload);
 
       await subscribeToAlerts(payload);
+
+      toast.success("You have successfully subscribed to air quality alerts!");
       reset();
       setSelectedIds([]);
       setIsOpen(false);
     } catch (err) {
       console.error(err);
       setServerError("Something went wrong. Try again.");
+      toast.error("Subscription failed. Please try again later.");
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleDialogChange}>
-      <DialogTrigger asChild>
-        <Button
-          size="lg"
-          className="bg-green-600 hover:bg-[#7cf50b] text-white font-bold px-10 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-        >
-          <Bell className="mr-2 h-5 w-5" /> Get Air Quality Alerts
-        </Button>
-      </DialogTrigger>
+    <>
 
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Get Air Quality Alerts</DialogTitle>
-        </DialogHeader>
+      <Dialog open={isOpen} onOpenChange={handleDialogChange}>
+        <DialogTrigger asChild>
+          <Button
+            size="lg"
+            className="bg-green-600 hover:bg-[#7cf50b] text-white font-bold px-10 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+          >
+            <Bell className="mr-2 h-5 w-5" /> Get Air Quality Alerts
+          </Button>
+        </DialogTrigger>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {serverError && (
-            <div className="bg-red-100 text-red-700 px-4 py-2 rounded-md text-sm">
-              {serverError}
-            </div>
-          )}
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Get Air Quality Alerts</DialogTitle>
+          </DialogHeader>
 
-          {/* Name */}
-          <div>
-            <Label>Name</Label>
-            <Input
-              type="text"
-              placeholder="John Doe"
-              {...register("name", {
-                required: "Name is required",
-                minLength: { value: 2, message: "Name too short" },
-              })}
-              className={errors.name ? "border-red-500" : ""}
-            />
-            {errors.name && (
-              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
-            )}
-          </div>
-
-          {/* Email */}
-          <div>
-            <Label>Email Address</Label>
-            <Input
-              type="email"
-              placeholder="you@example.com"
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Invalid email format",
-                },
-              })}
-              className={errors.email ? "border-red-500" : ""}
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-            )}
-          </div>
-
-          {/* Stations */}
-          <div>
-            <Label>Stations</Label>
-            <div
-              className={`border rounded-md px-2 py-1 flex flex-wrap gap-2 focus-within:ring-2 ${
-                errors.sensorIds ? "border-red-500" : "focus-within:ring-green-600"
-              }`}
-            >
-              {selectedIds.map((id) => {
-                const station = stations.find((s) => s.sensorId === id);
-                return (
-                  <span
-                    key={id}
-                    className="flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-md text-sm"
-                  >
-                    {station?.name || id}
-                    <button
-                      type="button"
-                      onClick={() => removeSensor(id)}
-                      className="ml-1 hover:text-red-600"
-                    >
-                      <X size={14} />
-                    </button>
-                  </span>
-                );
-              })}
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={
-                  selectedIds.length ? "" : "Search and select stations..."
-                }
-                className="flex-grow min-w-[120px] outline-none p-1 text-sm"
-              />
-            </div>
-
-            {query && filteredOptions.length > 0 && (
-              <div className="border border-gray-200 rounded-md mt-1 max-h-32 overflow-y-auto">
-                {filteredOptions.map((station) => (
-                  <div
-                    key={station.sensorId}
-                    onClick={() => addSensor(station)}
-                    className="px-3 py-1 cursor-pointer hover:bg-green-50 text-sm"
-                  >
-                    {station.name}
-                  </div>
-                ))}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {serverError && (
+              <div className="bg-red-100 text-red-700 px-4 py-2 rounded-md text-sm">
+                {serverError}
               </div>
             )}
 
-            {errors.sensorIds && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.sensorIds.message}
-              </p>
-            )}
-          </div>
+            {/* Name */}
+            <div>
+              <Label>Name</Label>
+              <Input
+                type="text"
+                placeholder="John Doe"
+                {...register("name", {
+                  required: "Name is required",
+                  minLength: { value: 2, message: "Name too short" },
+                })}
+                className={errors.name ? "border-red-500" : ""}
+              />
+              {errors.name && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.name.message}
+                </p>
+              )}
+            </div>
 
-          {/* Alert Level */}
-          <div>
-            <Label>Alert Level</Label>
-            <select
-              {...register("alertLevel", { required: "Please select an alert level" })}
-              className={`w-full border rounded-md p-2 text-sm ${
-                errors.alertLevel ? "border-red-500" : ""
-              }`}
+            {/* Email */}
+            <div>
+              <Label>Email Address</Label>
+              <Input
+                type="email"
+                placeholder="you@example.com"
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Invalid email format",
+                  },
+                })}
+                className={errors.email ? "border-red-500" : ""}
+              />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            {/* Stations */}
+            <div>
+              <Label>Stations</Label>
+              <div
+                className={`border rounded-md px-2 py-1 flex flex-wrap gap-2 focus-within:ring-2 ${
+                  errors.sensorIds
+                    ? "border-red-500"
+                    : "focus-within:ring-green-600"
+                }`}
+              >
+                {selectedIds.map((id) => {
+                  const station = stations.find((s) => s.sensorId === id);
+                  return (
+                    <span
+                      key={id}
+                      className="flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-md text-sm"
+                    >
+                      {station?.name || id}
+                      <button
+                        type="button"
+                        onClick={() => removeSensor(id)}
+                        className="ml-1 hover:text-red-600"
+                      >
+                        <X size={14} />
+                      </button>
+                    </span>
+                  );
+                })}
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={
+                    selectedIds.length ? "" : "Search and select stations..."
+                  }
+                  className="flex-grow min-w-[120px] outline-none p-1 text-sm"
+                />
+              </div>
+
+              {query && filteredOptions.length > 0 && (
+                <div className="border border-gray-200 rounded-md mt-1 max-h-32 overflow-y-auto">
+                  {filteredOptions.map((station) => (
+                    <div
+                      key={station.sensorId}
+                      onClick={() => addSensor(station)}
+                      className="px-3 py-1 cursor-pointer hover:bg-green-50 text-sm"
+                    >
+                      {station.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {errors.sensorIds && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.sensorIds.message}
+                </p>
+              )}
+            </div>
+
+            {/* Alert Level */}
+            <div>
+              <Label>Alert Level</Label>
+              <select
+                {...register("alertLevel", {
+                  required: "Please select an alert level",
+                })}
+                className={`w-full border rounded-md p-2 text-sm ${
+                  errors.alertLevel ? "border-red-500" : ""
+                }`}
+              >
+                <option value="">Select alert level...</option>
+                {legendItems.map((item) => (
+                  <option key={item.label} value={item.label}>
+                    {item.label} ({item.range})
+                  </option>
+                ))}
+              </select>
+              {errors.alertLevel && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.alertLevel.message}
+                </p>
+              )}
+            </div>
+
+            {/* Submit */}
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-green-700 hover:bg-green-800 disabled:bg-gray-400"
             >
-              <option value="">Select alert level...</option>
-              {legendItems.map((item) => (
-                <option key={item.label} value={item.label}>
-                  {item.label} ({item.range})
-                </option>
-              ))}
-            </select>
-            {errors.alertLevel && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.alertLevel.message}
-              </p>
-            )}
-          </div>
-
-          {/* Submit */}
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-green-700 hover:bg-green-800 disabled:bg-gray-400"
-          >
-            {isSubmitting ? "Submitting..." : "Subscribe"}
-          </Button>
-        </form>
-      </DialogContent>
-    </Dialog>
+              {isSubmitting ? "Submitting..." : "Subscribe"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
