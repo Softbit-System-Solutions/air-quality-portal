@@ -163,7 +163,7 @@ export default function MapComponent({
 
     // Center map on selected station
     if (selectedStation && typeof selectedStation.lat === 'number' && typeof selectedStation.lng === 'number') {
-      leafletMapRef.current.setView([selectedStation.lat, selectedStation.lng], 13, { animate: true });
+      leafletMapRef.current.setView([selectedStation.lat, selectedStation.lng], 12, { animate: true });
     }
 
     // Cleanup when component unmounts
@@ -185,9 +185,7 @@ export default function MapComponent({
 
   return (
     <div className="h-full">
-      <div className="flex items-center text-sm text-gray-700 mb-2">
-        <span ref={timeRef} className="ml-2 font-medium" />
-      </div>
+ 
       <div ref={mapRef} style={{ height: '86vh', width: '100%' }} />
     </div>
   );

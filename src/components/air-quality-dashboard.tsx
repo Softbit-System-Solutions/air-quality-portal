@@ -9,9 +9,9 @@ import EmailAlertSection from "@/components/email-alert-section";
 import FeedbackSection from "@/components/feedbacksection";
 import Footer from "@/components/footersection";
 import { getHistoricalData, getStations } from "@/lib/api";
-import Legend from "./legend";
 import { Station } from "@/lib/api";
 import TrendsChart from "./trends-chart";
+import Legend from "./legend";
 
 // Dynamically import MapComponent with SSR disabled
 const MapComponent = dynamic(() => import("./map-component"), {
@@ -99,6 +99,9 @@ function getPollutantLevel(value: number, pollutant: PollutantType): string {
   return "Good";
 }
 
+
+
+
 export default function Dashboard() {
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(false);
@@ -108,7 +111,7 @@ export default function Dashboard() {
   const [selectedPollutant, setSelectedPollutant] =
     useState<PollutantType>("aqi");
 
-  // const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    // const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
 
@@ -130,15 +133,37 @@ export default function Dashboard() {
     // Initial fetch
     fetchStations();
   }, []);
-
+  
   const currentPollutantOption = pollutantOptions.find(
     (option) => option.value === selectedPollutant
   )!;
-
+  
   // Filter stations by name case-insensitive
   const filteredStations = stations.filter((station) =>
     station.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+);
+
+const timeRef = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const updateTime = () => {
+      if (timeRef.current) {
+        timeRef.current.textContent = new Date().toLocaleString('en-KE', {
+          timeZone: 'Africa/Nairobi',
+          hour12: false,
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+      }
+    };
+  
+    updateTime(); // initialize immediately
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="bg-[#ffffff] min-h-screen">
@@ -156,9 +181,12 @@ export default function Dashboard() {
     
           </div>
 
+          <div className="flex items-center text-sm text-gray-700 mb-1">
+        <span ref={timeRef} className="ml-2" />
+      </div>
           {/* Map Container */}
           <div className="relative rounded-lg overflow-hidden bg-gray-100">
-            <div className="h-[400px] sm:h-[500px] lg:h-[770px]">
+            <div className="h-[400px] sm:h-[500px] lg:h-[790px]">
               <MapComponent
                 stations={stations}
                 selectedStation={selectedStation}
@@ -169,11 +197,10 @@ export default function Dashboard() {
                 getPollutantLevel={getPollutantLevel}
               />
             </div>
-            <div className="border-black w-full py-2">
-              {" "}
+          </div>
+            <div className="border-black w-full bg-gray-100 py-1">
               <Legend />
             </div>
-          </div>
 
           {/* Selected Station Info */}
           <div className="mb-6 p-4 bg-[#eaefff] rounded-lg">

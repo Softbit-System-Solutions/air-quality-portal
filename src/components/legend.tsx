@@ -13,7 +13,7 @@ const legendItems = [
 
 export default function Legend() {
   return (
-    <div className="mt-4 w-full px-">
+    <div className="mt-4 w-full">
       <div className="flex flex-wrap justify-around gap-4">
         {legendItems.map((item) => (
           <div
