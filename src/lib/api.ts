@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 // Base API URL for all requests
-const BASE_URL = "https://xp-backend.sytes.net/api/v1";
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://xp-backend.sytes.net/api/v1";
 
 export interface FakeStation {
   id: string;
@@ -96,7 +96,7 @@ export const subscribeToAlerts = async (payload: any): Promise<any> => {
 
 // 🔹 unSubscribe to alerts
 export const unsubscribeFromAlerts = async (id: string): Promise<any> => {
-  console.log('I am being called')
+  console.log('I am being called');
   const data = await fetchJSON(`${BASE_URL}/alerts/users/${id}/unsubscribe`, {
     method: "POST",
   });
